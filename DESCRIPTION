@@ -1,0 +1,22 @@
+Package: rWHAP
+Type: Package
+Title: Wave Height Analysis and Prediction
+Version: 0.1.0
+Author: c(person("Hugo", "Hammer", email = "Hugo.Hammer@hioa.no",
+                  role = c("aut", "cre")),
+                  person("Tor Arne", "Oigard", email = "Tor.Arne.Oigard@nr.no",
+                  role = c("aut", "cre")),
+                  person("Thordis", "Thorarinsdottir", email = "Thordis.Thorarinsdottir@nr.no",
+                  role = c("aut", "cre")),
+                  person("Hanne", "Rognebakke", email = "Hanne.Rognebakke@nr.no",
+                  role = c("aut", "cre")))
+Maintainer: Thordis Thorarinsdottir <yourself@somewhere.net>
+Description: Statistical prediction of Significant Wave Height (SWH) based on Sea Level Preassure (SLP)
+License: GPL-2
+URL: https://github.com/UPDATE_THIS
+Encoding: UTF-8
+LazyData: TRUE
+Imports: 
+        glmnet
+        forecast
+        moments

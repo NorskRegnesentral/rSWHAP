@@ -1,0 +1,32 @@
+---
+title: "The rWHAP package - Wave Height Analysis and Prediction"
+author: "Hugo Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke")
+date: "01/01/2020"
+output: github_document
+---
+
+<img src="vignettes/figures/NR-logo_utvidet_r32g60b136_small.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%",
+    tidy = "styler"
+)
+```
+# The rWHAP package
+### Wave Height Analysis and Prediction
+##### Hugo Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke
+
+
+### Overview
+
+### Installation of the rWHAP package
+Package dependencies
+
+### Example data
+
+### Model fitting
