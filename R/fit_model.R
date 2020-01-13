@@ -98,9 +98,10 @@ makeARterms = function(n.training = 100,n.test = 10, maxlag = 10) {
 # @param lonSWH A vector containing the SWH longitudes
 # @param latSLP A vector containing the SLP latitudes
 # @param lonSLP A vector containing the SLO longitudes
+# @param intercept.fourier Seasonal Fourier coefficients
 # @param maxlag Define the maximum order of AR processes to be constructed
 # @return A list of predictive means, predictive spread and lambda for Box-Cox transformation
-fit.model = function(SWH = NA,
+getPreddistr = function(SWH = NA,
                      SLP = NA,
                      SLP.grad = NA,
                      latCell = 4,
@@ -111,6 +112,7 @@ fit.model = function(SWH = NA,
                      lonSWH = NA,
                      latSLP = NA,
                      longSLP = NA,
+                     intercept.fourier = NA,
                      maxlag = 10) {
 
   pred.mean = rep(NA, length(training.test[[2]]))
@@ -196,20 +198,18 @@ fit.model = function(SWH = NA,
 
     ## Vanem&Walker spatial model LASSO #####
 
-    ## Compute mean, max og mean of the neighborhood of the current point
+    ## Compute mean, max og min of the neighborhood of the current point
     SLP.spatmax = apply(SLP[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
-                             max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, max, na.rm = T)
-    SLP.spatmin = apply(SLP[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
-                             max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, min, na.rm = T)
+                             max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, max, na.rm = TRUE)
     SLP.spatmean = apply(SLP[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
-                              max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, mean, na.rm = T)
+                              max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, mean, na.rm = TRUE)
 
     SLP.grad.spatmax = apply(SLP.grad[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
-                                       max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, max, na.rm = T)
+                                       max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, max, na.rm = TRUE )
     SLP.grad.spatmin = apply(SLP.grad[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
-                                       max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, min, na.rm = T)
+                                       max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, min, na.rm = TRUE)
     SLP.grad.spatmean = apply(SLP.grad[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
-                                        max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, mean, na.rm = T)
+                                        max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, mean, na.rm = TRUE)
 
     ## Split in test and training
     SLP.spatmax.training = SLP.spatmax[idx.training]

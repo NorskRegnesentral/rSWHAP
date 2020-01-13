@@ -84,14 +84,26 @@ training.test = split.data(years = years.all,trainingPeriod = 2006:2014,testPeri
 
 Next we fit the model to the training data by estimating the model parameters and obtain predictive distributions. In the example below we have chosen to use latitude cell 4 and longitude cell 4 (the data is a 7x7 latitude longitude grid).
 
-NOTE: Maybe create a data preparation function so that not the whole SWH and SLP data set has to be sent into this function.
+NOTE: Maybe create a data preparation function so that not the whole SWH and SLP data set has to be sent into this function but only data for the position (unless neighbors are needed...need to check...)
 ```{r}
-fit.model(SWH = SWH,SLP = SLP, SLP.grad = SLP.grad,latCell = 4, lonCell = 4,neig = 2,na.tresh = 500,latSWH = latitudeSWH,lonSWH = longitudeSWH,latSLP = latitudeSLP,lonSLP = longitudeSLP)
+pred.dist = getPreddistr(SWH = SWH,
+          SLP = SLP, 
+          SLP.grad = SLP.grad,
+          latCell = 4, 
+          lonCell = 4,
+          neig = 2,
+          na.tresh = 500,
+          latSWH = latitudeSWH,
+          lonSWH = longitudeSWH,
+          latSLP = latitudeSLP,
+          lonSLP = longitudeSLP,
+          intercept.fourier = intercept.fourier,
+          maxlag = 10)
 
-pred.dist  <- getPreddistr(j=lonSWH, k=latSWH, neig=spatial.neighborhoods)
 pred.mean = pred.dist$pred.mean
 pred.sd = pred.dist$pred.sd
 pred.lambda = pred.dist$pred.lambda
+
 print(pred.dist$fits)
 ```
 
