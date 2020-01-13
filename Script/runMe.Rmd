@@ -1,0 +1,97 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+<img src="vignettes/figures/NR-logo_utvidet_r32g60b136_small.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
+
+
+# The rWHAP package
+### Wave Height Analysis and Prediction
+#### Authors: Hugo L. Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke
+
+***
+
+## Overview
+Describe the package
+
+### Installation and loading the rWHAP package
+The rWHAP package depends on the following R-packages
+
+  - *glmnet*
+  - *forecast*
+  - *moments*
+
+<!-- end list -->
+
+These dependencies will be automatically installed when installing the rWHAP package.
+
+The most recent version of the *rWHAP* package is hosted on a git repository at
+<https://github.com/NorskRegnesentral/rWHAP.git>.
+
+In order to install the rWHAP package run the following command:
+
+```{r}
+devtools::install_git(url = "https://github.com/NorskRegnesentral/rWHAP.git")
+```
+
+In order to load the package type:
+```{r}
+library(rWHAP)
+```
+
+
+### Example data
+A small example data set is included. It contains Significant Wave Height (SWH), Sea Level Preassure (SLP) and gradients for the SLP for the years 2006 to 2015. The data is within the latitude range of 53.25 - 57.75 and longitude range of  54.00 - 58.50. The time resolution is 6 hours, i.e., 4 measurements available for each day.
+
+THORDIS: Kanskje vi bør skrive mer om data? Nevne Era Interim? Sjekk med paperet!!!
+
+The table below lists the various variables in the data set.
+
+When the R-package is loaded, the data can be loaded using
+```{r}
+load(SWHdata)
+```
+
+To see summary statistics of the SWH in the data:
+```{r}
+summary(SWH)
+```
+
+For summary statistics of the SLP in the data:
+```{r}
+summary(SLP)
+```
+
+Summary statistics for the gradient of the SLP:
+```{r}
+summary(SLP.grad)
+```
+
+### Model fitting
+Create Fourier terms to use in the modeling. The Fourier terms are needed for modeling seasonality.
+
+You need to specify the number of observations per year and the number of Fourier terms. Default values are 365.25*4 observations per year and 2 Fourier terms.
+```{r}
+intercept.fourier = fourier()
+```
+
+Define the training set and the test set. In this example data from 2006 to 2014 is used for training and data from 2015 is used for testing (this is also default values).
+```{r}
+training.test = split.data(years = years.all,trainingPeriod = 2006:2014,testPeriod = 2015)
+```
+
+Next we fit the model to the training data by estimating the model parameters and obtain predictive distributions. In the example below we have chosen to use latitude cell 4 and longitude cell 4 (the data is a 7x7 latitude longitude grid).
+
+NOTE: Maybe create a data preparation function so that not the whole SWH and SLP data set has to be sent into this function.
+```{r}
+fit.model(SWH = SWH,SLP = SLP, SLP.grad = SLP.grad,latCell = 4, lonCell = 4,neig = 2,na.tresh = 500,latSWH = latitudeSWH,lonSWH = longitudeSWH,latSLP = latitudeSLP,lonSLP = longitudeSLP)
+
+pred.dist  <- getPreddistr(j=lonSWH, k=latSWH, neig=spatial.neighborhoods)
+pred.mean = pred.dist$pred.mean
+pred.sd = pred.dist$pred.sd
+pred.lambda = pred.dist$pred.lambda
+print(pred.dist$fits)
+```
+
