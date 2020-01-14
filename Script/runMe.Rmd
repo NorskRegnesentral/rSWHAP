@@ -74,12 +74,14 @@ Create Fourier terms to use in the modeling. The Fourier terms are needed for mo
 
 You need to specify the number of observations per year and the number of Fourier terms. Default values are 365.25*4 observations per year and 2 Fourier terms.
 ```{r}
-intercept.fourier = fourier()
+intercept.fourier = fourier(x = rep(1,length(time.all)))
 ```
 
 Define the training set and the test set. In this example data from 2006 to 2014 is used for training and data from 2015 is used for testing (this is also default values).
 ```{r}
-training.test = split.data(years = years.all,trainingPeriod = 2006:2014,testPeriod = 2015)
+training.test = split.data(years = years.all,
+                           trainingPeriod = 2006:2014,
+                           testPeriod = 2015)
 ```
 
 Next we fit the model to the training data by estimating the model parameters and obtain predictive distributions. In the example below we have chosen to use latitude cell 4 and longitude cell 4 (the data is a 7x7 latitude longitude grid).
@@ -90,20 +92,33 @@ pred.dist = getPreddistr(SWH = SWH,
           SLP = SLP, 
           SLP.grad = SLP.grad,
           latCell = 4, 
-          lonCell = 4,
+          longCell = 4,
           neig = 2,
-          na.tresh = 500,
+          na.thresh = 500,
           latSWH = latitudeSWH,
           lonSWH = longitudeSWH,
           latSLP = latitudeSLP,
-          lonSLP = longitudeSLP,
+          longSLP = longitudeSLP,
           intercept.fourier = intercept.fourier,
           maxlag = 10)
 
+# Extract the mean, standard deviation and the 
+# estimated lambda parameter for the predictive
+# distribution.
 pred.mean = pred.dist$pred.mean
 pred.sd = pred.dist$pred.sd
 pred.lambda = pred.dist$pred.lambda
 
 print(pred.dist$fits)
+```
+
+To explore the model fit we first create the vector of observed SWHs in the test period for the location of interest.
+```{r}
+obs  <- SWH[lonSWH, latSWH, training.test[[2]]]
+```
+
+One method to assess the goodness of fit of the predictive distribution fits the data is to calculate  probability integral transform (PIT) values and plot a PIT histogram for the test set. PIT histograms graphically compare empirical probabilities from fitted models with a uniform distribution.
+```{r}
+pit  <- pBoxCox(obs, pred.mean, pred.sd, pred.lambda)
 ```
 

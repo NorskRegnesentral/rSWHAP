@@ -54,6 +54,28 @@ BoxCoxLambda = function(obs) {
   return(list(data=obs.trans[which.min(normdev),],lambda = lambda[which.min(normdev)]))
 }
 
+# Compute PIT values of the Box Cox distribution
+# @param obs The observations to be transformed
+# @param mean The mean of the predictive distribution
+# @param sd The standard deviation of the predictive distribution
+# @param lambda The estimated Box Cox lambda parameter used in the transformation of the predictive distribution
+# @param plothist Set to TRUE if plotting the histogram of the PIT values
+# @return The PIT values
+pBoxCox = function(x, mean, sd, lambda,plothist = TRUE) {
+  g.x  <- BoxCoxLambdaKnown(x, lambda)
+  if(round(lambda,2) < 0) {
+    p = pnorm((g.x-mean)/sd) / pnorm((-1/lambda - mean)/sd)
+  } else if(round(lambda,2) == 0) {
+    p = pnorm((g.x-mean)/sd)
+  } else { # lambda > 0
+    p = (pnorm((g.x-mean)/sd) - pnorm((-1/lambda - mean)/sd)) / pnorm((1/lambda + mean)/sd)
+  }
+
+  hist(p, freq=FALSE, nclass=10, col="gray", xlab="PIT value",main = "PIT histogram")
+  abline(a=1, b=0, lty=2,col = "red")
+  return(p)
+}
+
 # Performs Box-Cox transformation with a known lambda parameter
 # @param obs The observations to be transformed
 # @param lambda The lambda parameter to be used in the transformation
@@ -74,13 +96,42 @@ BoxCoxLambdaKnown = function(obs, lambda) {
 # @return AR terms for various lags used in model fitting
 makeARterms = function(n.training = 100,n.test = 10, maxlag = 10) {
 
+  SWH.bc.ar.training.names = rep("",maxlag)
+  SWH.bc.fourier.ar.training.names = rep("",maxlag)
+  SWH.bc.ar.test.names = rep("",maxlag)
+  SWH.bc.fourier.ar.test.names = rep("",maxlag)
+
+  SWH.bc.ar.training.list = list()
+  SWH.bc.fourier.ar.training.list = list()
+  SWH.bc.ar.test.list = list()
+  SWH.bc.fourier.ar.test.list = list()
+
   for(lag in 1:maxlag){
     assign(paste("SWH.bc.ar.training.m",lag,sep = ""),c(rep(SWH.bc.standard.training[1],lag), SWH.bc.standard.training[1:(n.training-lag)]))
+    SWH.bc.ar.training.names[lag] = paste("SWH.bc.ar.training.m",lag,sep = "")
+    SWH.bc.ar.training.list[[lag]] = c(rep(SWH.bc.standard.training[1],lag), SWH.bc.standard.training[1:(n.training-lag)])
+
     assign(paste("SWH.bc.fourier.ar.training.m",lag,sep=""),rbind(matrix(rep(SWH.bc.fourier.training[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.training[1:(n.training-lag),]))
+    SWH.bc.fourier.ar.training.names[lag] = paste("SWH.bc.fourier.ar.training.m",lag,sep = "")
+    SWH.bc.fourier.ar.training.list[[lag]] = rbind(matrix(rep(SWH.bc.fourier.training[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.training[1:(n.training-lag),])
+
     assign(paste("SWH.bc.ar.test.m",lag,sep = ""), c(rep(SWH.bc.standard.test[1],lag), SWH.bc.standard.test[1:(n.test-lag)]))
+    SWH.bc.ar.test.names[lag] = paste("SWH.bc.ar.test.m",lag,sep = "")
+    SWH.bc.ar.test.list[[lag]] = c(rep(SWH.bc.standard.test[1],lag), SWH.bc.standard.test[1:(n.training-lag)])
+
     assign(paste("SWH.bc.fourier.ar.test.m",lag,sep = ""), rbind(matrix(rep(SWH.bc.fourier.test[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.test[1:(n.test-lag),]))
+    SWH.bc.fourier.ar.test.names[lag] = paste("SWH.bc.fourier.ar.test.m",lag,sep = "")
+    SWH.bc.fourier.ar.test.list[[lag]] = rbind(matrix(rep(SWH.bc.fourier.test[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.test[1:(n.test-lag),])
 
   }
+
+  ARterms = list()
+  ARterms$SWH.bc.ar.training.list = SWH.bc.ar.training.list
+  ARterms$SWH.bc.fourier.ar.training.list = SWH.bc.fourier.ar.training.list
+  ARterms$SWH.bc.ar.test.list = SWH.bc.ar.test.list
+  ARterms$SWH.bc.fourier.ar.test.list = SWH.bc.fourier.ar.test.list
+
+  return(ARterms)
 }
 
 
@@ -89,11 +140,11 @@ makeARterms = function(n.training = 100,n.test = 10, maxlag = 10) {
 # @param SWH The SWH data
 # @param SLP The SLP data
 # @param SLP.grad The SLP gradient data
-# @param latCel Define the latitude cell of interest (default = 4)
-# @param lonCel Define the longitude cell of interest (default = 4)
+# @param latCell Define the latitude cell of interest (default = 4)
+# @param longCell Define the longitude cell of interest (default = 4)
 # @param training.test The training and the test data
 # @param neig Define the number of spatial neighbours (default = 2)
-# @param na.tresh Define how many missing values is "good enough" (default = 500)
+# @param na.thresh Define how many missing values is "good enough" (default = 500)
 # @param latSWH A vector containing the SWH latitudes
 # @param lonSWH A vector containing the SWH longitudes
 # @param latSLP A vector containing the SLP latitudes
@@ -105,9 +156,9 @@ getPreddistr = function(SWH = NA,
                      SLP = NA,
                      SLP.grad = NA,
                      latCell = 4,
-                     lonCel = 4,
+                     longCell = 4,
                      neig = 2,
-                     na.tresh = 500,
+                     na.thresh = 500,
                      latSWH = NA,
                      lonSWH = NA,
                      latSLP = NA,
@@ -126,16 +177,16 @@ getPreddistr = function(SWH = NA,
   idx.rank = 0
 
   ## Make sure covariates are from the correct location
-  idx.longSLP = which(longitudeSLP == longitudeSWH[lonCell])
+  idx.longSLP = which(longitudeSLP == longitudeSWH[longCell])
   idx.latSLP = which(latitudeSLP == latitudeSWH[latCell])
 
   ## Only continue with analysis if sufficient available data
-  if(sum(is.na(SWH[j, k,])) < na.thresh &
+  if(sum(is.na(SWH[longCell, latCell,])) < na.thresh &
      sum(is.na( SLP[idx.longSLP, idx.latSLP, ])) < na.thresh &
      sum(is.na( SLP.grad[idx.longSLP, idx.latSLP, ])) < na.thresh) {
 
     ## Remove missing data
-    not.NA = which(!is.na(SWH[j, k,]) &
+    not.NA = which(!is.na(SWH[longCell, latCell,]) &
                      !is.na( SLP[idx.longSLP, idx.latSLP, ]) &
                      !is.na( SLP.grad[idx.longSLP, idx.latSLP, ]))
     idx.training = idx.training[idx.training %in% not.NA]
@@ -144,12 +195,12 @@ getPreddistr = function(SWH = NA,
     n.test = length(idx.test)
 
     ## Estimate lambda and Box-Cox transform SWH in training period
-    SWH.bc.dummy.training = BoxCoxLambda(SWH[lonCell, latCell,idx.training])
+    SWH.bc.dummy.training = BoxCoxLambda(SWH[longCell, latCell,idx.training])
     SWH.bc.lambda.training = SWH.bc.dummy.training$lambda
     SWH.bc.training = SWH.bc.dummy.training$data
 
     ## Box-Cox transform SWH in test period with same lambda
-    SWH.bc.test = BoxCoxLambdaKnown(SWH[j, k,idx.test], SWH.bc.lambda.training)
+    SWH.bc.test = BoxCoxLambdaKnown(SWH[longCell, latCell,idx.test], SWH.bc.lambda.training)
 
     ## Estimate lambda and Box-Cox transform SLP.grad in training period
     SLP.grad.bc.dummy.training = BoxCoxLambda(SLP.grad[idx.longSLP, idx.latSLP,idx.training])
@@ -194,13 +245,16 @@ getPreddistr = function(SWH = NA,
     SWH.bc.fourier.test = fourier.test*SWH.bc.standard.test
 
     # Create AR terms for model selection
-    makeARterms(n.training = n.training,n.test = n.test,maxlag = 10)
+    ARterms = makeARterms(n.training = n.training,n.test = n.test,maxlag = maxlag)
 
+    list2env(setNames(SWH.bc.ar.training.list,paste0("SWH.bc.ar.training.m",seq_along(SWH.bc.ar.training.list))), envir = parent.frame())
     ## Vanem&Walker spatial model LASSO #####
 
     ## Compute mean, max og min of the neighborhood of the current point
     SLP.spatmax = apply(SLP[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
                              max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, max, na.rm = TRUE)
+    SLP.spatmin = apply(SLP[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
+                             max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, min, na.rm = T)
     SLP.spatmean = apply(SLP[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
                               max(idx.latSLP-neig,1):min(idx.latSLP+neig, dim(SLP)[2]),], 3, mean, na.rm = TRUE)
 
