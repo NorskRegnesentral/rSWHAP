@@ -71,6 +71,14 @@ pBoxCox = function(x, mean, sd, lambda,plothist = TRUE) {
     p = (pnorm((g.x-mean)/sd) - pnorm((-1/lambda - mean)/sd)) / pnorm((1/lambda + mean)/sd)
   }
 
+  system = Sys.info()
+  if(system['sysname']=="Windows"){
+    windows(width = 7,height = 5)
+  }
+
+  if(system['sysname']=="Linux"){
+    X11(width = 7,height = 5)
+  }
   hist(p, freq=FALSE, nclass=10, col="gray", xlab="PIT value",main = "PIT histogram")
   abline(a=1, b=0, lty=2,col = "red")
   return(p)
@@ -107,23 +115,30 @@ makeARterms = function(n.training = 100,n.test = 10, maxlag = 10) {
   SWH.bc.fourier.ar.test.list = list()
 
   for(lag in 1:maxlag){
-    assign(paste("SWH.bc.ar.training.m",lag,sep = ""),c(rep(SWH.bc.standard.training[1],lag), SWH.bc.standard.training[1:(n.training-lag)]))
+    #assign(paste("SWH.bc.ar.training.m",lag,sep = ""),c(rep(SWH.bc.standard.training[1],lag), SWH.bc.standard.training[1:(n.training-lag)]))
     SWH.bc.ar.training.names[lag] = paste("SWH.bc.ar.training.m",lag,sep = "")
     SWH.bc.ar.training.list[[lag]] = c(rep(SWH.bc.standard.training[1],lag), SWH.bc.standard.training[1:(n.training-lag)])
 
-    assign(paste("SWH.bc.fourier.ar.training.m",lag,sep=""),rbind(matrix(rep(SWH.bc.fourier.training[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.training[1:(n.training-lag),]))
+    #assign(paste("SWH.bc.fourier.ar.training.m",lag,sep=""),rbind(matrix(rep(SWH.bc.fourier.training[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.training[1:(n.training-lag),]))
     SWH.bc.fourier.ar.training.names[lag] = paste("SWH.bc.fourier.ar.training.m",lag,sep = "")
     SWH.bc.fourier.ar.training.list[[lag]] = rbind(matrix(rep(SWH.bc.fourier.training[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.training[1:(n.training-lag),])
 
-    assign(paste("SWH.bc.ar.test.m",lag,sep = ""), c(rep(SWH.bc.standard.test[1],lag), SWH.bc.standard.test[1:(n.test-lag)]))
+    #assign(paste("SWH.bc.ar.test.m",lag,sep = ""), c(rep(SWH.bc.standard.test[1],lag), SWH.bc.standard.test[1:(n.test-lag)]))
     SWH.bc.ar.test.names[lag] = paste("SWH.bc.ar.test.m",lag,sep = "")
-    SWH.bc.ar.test.list[[lag]] = c(rep(SWH.bc.standard.test[1],lag), SWH.bc.standard.test[1:(n.training-lag)])
+    SWH.bc.ar.test.list[[lag]] = c(rep(SWH.bc.standard.test[1],lag), SWH.bc.standard.test[1:(n.test-lag)])
 
-    assign(paste("SWH.bc.fourier.ar.test.m",lag,sep = ""), rbind(matrix(rep(SWH.bc.fourier.test[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.test[1:(n.test-lag),]))
+    #assign(paste("SWH.bc.fourier.ar.test.m",lag,sep = ""), rbind(matrix(rep(SWH.bc.fourier.test[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.test[1:(n.test-lag),]))
     SWH.bc.fourier.ar.test.names[lag] = paste("SWH.bc.fourier.ar.test.m",lag,sep = "")
     SWH.bc.fourier.ar.test.list[[lag]] = rbind(matrix(rep(SWH.bc.fourier.test[1,],lag), nrow = lag, byrow = TRUE), SWH.bc.fourier.test[1:(n.test-lag),])
 
   }
+
+  names(SWH.bc.ar.training.list) = SWH.bc.ar.training.names
+  names(SWH.bc.fourier.ar.training.list) = SWH.bc.fourier.ar.training.names
+  names(SWH.bc.ar.test.list) = SWH.bc.ar.test.names
+  names(SWH.bc.fourier.ar.test.list) = SWH.bc.fourier.ar.test.names
+
+
 
   ARterms = list()
   ARterms$SWH.bc.ar.training.list = SWH.bc.ar.training.list
@@ -247,8 +262,18 @@ getPreddistr = function(SWH = NA,
     # Create AR terms for model selection
     ARterms = makeARterms(n.training = n.training,n.test = n.test,maxlag = maxlag)
 
+    SWH.bc.ar.training.list = ARterms$SWH.bc.ar.training.list
+    SWH.bc.fourier.ar.training.list = ARterms$SWH.bc.fourier.ar.training.list
+    SWH.bc.ar.test.list = ARterms$SWH.bc.ar.test.list
+    SWH.bc.fourier.ar.test.list = ARterms$SWH.bc.fourier.ar.test.list
+
+    #Extract variables from the lists
     list2env(setNames(SWH.bc.ar.training.list,paste0("SWH.bc.ar.training.m",seq_along(SWH.bc.ar.training.list))), envir = parent.frame())
-    ## Vanem&Walker spatial model LASSO #####
+    list2env(setNames(SWH.bc.fourier.ar.training.list,paste0("SWH.bc.fourier.ar.training.m",seq_along(SWH.bc.fourier.ar.training.list))), envir = parent.frame())
+    list2env(setNames(SWH.bc.ar.test.list,paste0("SWH.bc.ar.test.m",seq_along(SWH.bc.ar.test.list))), envir = parent.frame())
+    list2env(setNames(SWH.bc.fourier.ar.test.list,paste0("SWH.bc.fourier.ar.test.m",seq_along(SWH.bc.fourier.ar.test.list))), envir = parent.frame())
+
+        ## Vanem&Walker spatial model LASSO #####
 
     ## Compute mean, max og min of the neighborhood of the current point
     SLP.spatmax = apply(SLP[ max(idx.longSLP-neig,1):min(idx.longSLP+neig, dim(SLP)[1]),
@@ -424,17 +449,18 @@ getPreddistr = function(SWH = NA,
 
     colnames(predictors.training) = paste("V", 1:dim(predictors.training)[2], sep = "")
     colnames(predictors.test) = paste("V", 1:dim(predictors.test)[2], sep = "")
-    cat("Total number of potential predictors:",dim(predictors.training)[2], "\n")
+    cat("Total number of potential predictors used in LASSO selection:",dim(predictors.training)[2], "\n")
 
     ## Start with LASSO selection
-    cv = cv.glmnet(as.matrix(predictors.training), SWH.bc.standard.training, family = "gaussian", alpha = 1, nfold = 10)
-    lasso = glmnet(as.matrix(predictors.training), SWH.bc.standard.training, alpha = 1)
+    cv = glmnet::cv.glmnet(as.matrix(predictors.training), SWH.bc.standard.training, family = "gaussian", alpha = 1, nfold = 10)
+    lasso = glmnet::glmnet(as.matrix(predictors.training), SWH.bc.standard.training, alpha = 1)
     minindex = which.min(abs(lasso$lambda - cv$lambda.min))
     beta = lasso$beta[,minindex]
     predictors.training = predictors.training[, which( abs(beta) > 1e-6 )]
     predictors.test = predictors.test[, which( abs(beta) > 1e-6 )]
     cat("Number of predictors selected by LASSO:",dim(predictors.training)[2], "\n")
 
+    cat("Fitting linear model with the variables from the LASSO selection...\n")
     fit <- lm(SWH.bc.standard.training ~ ., data = predictors.training)
     fits = summary(fit)
 
@@ -445,7 +471,7 @@ getPreddistr = function(SWH = NA,
     ## Descale and detransform before computing different raknkings
     SWH.bc.pred = SWH.bc.standard.pred*SWH.bc.sd.training + SWH.bc.mean.training
     SWH.bc.pred.se = SWH.bc.standard.pred.se*SWH.bc.sd.training
-    SWH.pred = InvBoxCox(SWH.bc.pred, SWH.bc.lambda.training) #detransform
+    SWH.pred = forecast::InvBoxCox(SWH.bc.pred, SWH.bc.lambda.training) #detransform
 
     pred.mean[idx.test - length(training.test[[1]])] = SWH.bc.pred
     pred.sd = SWH.bc.pred.se

@@ -114,7 +114,7 @@ print(pred.dist$fits)
 
 To explore the model fit we first create the vector of observed SWHs in the test period for the location of interest.
 ```{r}
-obs  <- SWH[lonSWH, latSWH, training.test[[2]]]
+obs  <- SWH[4, 4, training.test[[2]]]
 ```
 
 One method to assess the goodness of fit of the predictive distribution fits the data is to calculate  probability integral transform (PIT) values and plot a PIT histogram for the test set. PIT histograms graphically compare empirical probabilities from fitted models with a uniform distribution.
