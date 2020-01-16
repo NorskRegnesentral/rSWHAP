@@ -34,6 +34,41 @@ split.data = function(years, trainingPeriod = 2006:2014, testPeriod = 2015) {
   return(training.test)
 }
 
+# Compute quantiles of the Box Cox distribution
+# @param obs The probability
+# @param mean The mean of the distribution
+# @param sd The standard deviation of the distribution
+# @param lambda The lambda used in the Box Cox transformation
+# @return The quantiles of the Box Cox distribution
+qBoxCox = function(p, mean, sd, lambda) {
+  if(round(lambda,2) < 0) {
+    q = (lambda*(sd*qnorm(p)+mean)+1)^(1/lambda)
+  } else if(round(lambda,2) == 0) {
+    q = exp(mean + sd*qnorm(p))
+  } else { # lambda > 0
+    T = (1/lambda + mean)/sd
+    Vp = 1 - (1-p)*pnorm(T)
+    q = (lambda*(sd*qnorm(Vp)+mean)+1)^(1/lambda)
+  }
+  return(q)
+}
+
+# Compute the mean absolute error
+# @param obs Observations
+# @param mean The mean of the fitted distribution
+# @param sd The standard deviation of the fitted distribution
+# @param lambda The lambda used in the Box Cox transformation
+# @return The mean absolute error of the Box Cox distribution
+maeEst = function(obs,mean, sd, lambda) {
+
+  median  <- qBoxCox(0.5, mean, sd, lambda)
+  mae  <- mean(abs(obs - median))
+  cat("\n The mean absolute error is:",mae,"\n")
+
+  return(mae)
+}
+
+
 # Performs Box-Cox transformation of the data. The transformation parameter (lambda) is chosen to minimize deviation from the normal distribution (minumum sum of squared skewness and squared kurtosis)
 # @param obs The observations to be transformed
 # @return The observations transformed
@@ -52,6 +87,86 @@ BoxCoxLambda = function(obs) {
     normdev[i] = skewness(obs.trans[i,],na.rm = TRUE)^2 + 0.25*(kurtosis(obs.trans[i,],na.rm = TRUE))^2
   }
   return(list(data=obs.trans[which.min(normdev),],lambda = lambda[which.min(normdev)]))
+}
+
+# Plot the predictive distribution
+# @param obs The observations to be transformed
+# @param t.period The time period for plotting
+# @param mean The mean value of the distribution
+# @param sd The sd value of the distribution
+# @param lambda The estimated lambda of the distribution
+# @return A figure showing the predictive distribution
+plotPred = function(obs,t.period, mean, sd,lambda) {
+  upper  <- qBoxCox(0.95, mean = mean, sd = sd, lambda = lambda)
+  lower  <- qBoxCox(0.05, mean = mean, sd = sd, lambda = lambda)
+  median  <- qBoxCox(0.5, mean, sd, lambda)
+
+  t.upper  <- upper[t.period]
+  t.lower  <- lower[t.period]
+
+
+  system = Sys.info()
+  if(system['sysname']=="Windows"){
+    windows(width = 7,height = 5)
+  }
+
+  if(system['sysname']=="Linux"){
+    X11(width = 7,height = 5)
+  }
+
+  if(system['sysname']=="Darwin"){
+    quartz("",width = 7,height = 5)
+  }
+
+  plot(t.period, obs[t.period], type="l",
+       xlab="Time point in test period", ylab="SWH", ylim=c(0,15),
+       main="")
+  polygon(c(t.period, rev(t.period), t.period[1]),
+          c(t.lower, rev(t.upper), t.lower[1]), col="gray90", border="NA")
+  lines(t.period, obs[t.period])
+
+  lines(t.period, median[t.period], col="gray50", lty=2)
+
+  legend("topright", lty=c(1,2,1), lwd=c(1,1,4), col=c("black", "gray50", "gray90"),
+         legend=c("Observation", "Predictive median", "90% prediction interval"))
+
+}
+
+
+# Plot random predictive trajectories for a selection of time points
+# @param obs The observations to be transformed
+# @param t.period The time period for plotting
+# @param mean The mean value of the distribution
+# @param sd The sd value of the distribution
+# @param lambda The estimated lambda of the distribution
+# @param nrandom The number of random predictive trajectories
+# @return A figure showing the random predictive trajectories
+rPlotPred = function(obs,t.period, mean, sd,lambda,nrandom) {
+
+  t.ind  = t.period
+  n.period = length(t.ind)
+  random.q  = array(NA, dim=c(nrandom,n.period))
+  for(i in 1:n.period) random.q[,i]  = qBoxCox(runif(nrandom), mean[t.ind[i]], sd, lambda)
+
+  system = Sys.info()
+  if(system['sysname']=="Windows"){
+    windows(width = 7,height = 5)
+  }
+
+  if(system['sysname']=="Linux"){
+    X11(width = 7,height = 5)
+  }
+
+  if(system['sysname']=="Darwin"){
+    quartz("",width = 7,height = 5)
+  }
+
+
+  plot(t.ind, random.q[1,], type="l", col="gray50",
+       xlab="Time point in test period", ylab="SWH", ylim=c(5,12),
+       main="Random predictive trajectories")
+  for(i in 2:nrandom) lines(t.ind, random.q[i,], col="gray50")
+  lines(t.ind, obs[t.ind], col="black", lwd=2)
 }
 
 # Compute PIT values of the Box Cox distribution
@@ -79,6 +194,11 @@ pBoxCox = function(x, mean, sd, lambda,plothist = TRUE) {
   if(system['sysname']=="Linux"){
     X11(width = 7,height = 5)
   }
+
+  if(system['sysname']=="Darwin"){
+    quartz("",width = 7,height = 5)
+  }
+
   hist(p, freq=FALSE, nclass=10, col="gray", xlab="PIT value",main = "PIT histogram")
   abline(a=1, b=0, lty=2,col = "red")
   return(p)

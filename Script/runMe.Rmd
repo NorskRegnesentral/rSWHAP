@@ -121,4 +121,36 @@ One method to assess the goodness of fit of the predictive distribution fits the
 ```{r}
 pit  <- pBoxCox(obs, pred.mean, pred.sd, pred.lambda)
 ```
+We can calculate the mean absolute error over the test period
+```{r}
+mae = maeEst(obs = obs,
+             mean = pred.mean,
+             sd = pred.sd,
+             lambda = pred.lambda)
+```
 
+Plot the prediction and the observation in the first and last 100 time points of the test period
+```{r}
+plotPred(obs = obs,
+         t.period = c(1:100),
+         mean = pred.mean,
+         sd = pred.sd,
+         lambda = pred.lambda)
+
+plotPred(obs = obs,
+         t.period = c(1361:1460),
+         mean = pred.mean,
+         sd = pred.sd,
+         lambda = pred.lambda)
+
+```
+
+Random predictive trajectories for 10 time points
+```{r}
+rPlotPred(obs = obs,
+         t.period = c(40:49),
+         mean = pred.mean,
+         sd = pred.sd,
+         lambda = pred.lambda,
+         nrandom = 10)
+```
