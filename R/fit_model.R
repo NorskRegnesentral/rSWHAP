@@ -139,14 +139,14 @@ plotPred = function(obs,t.period, mean, sd,lambda) {
 # @param mean The mean value of the distribution
 # @param sd The sd value of the distribution
 # @param lambda The estimated lambda of the distribution
-# @param nrandom The number of random predictive trajectories
+# @param n.random The number of random predictive trajectories
 # @return A figure showing the random predictive trajectories
-rPlotPred = function(obs,t.period, mean, sd,lambda,nrandom) {
+rPlotPred = function(obs,t.period, mean, sd,lambda,n.random) {
 
   t.ind  = t.period
   n.period = length(t.ind)
-  random.q  = array(NA, dim=c(nrandom,n.period))
-  for(i in 1:n.period) random.q[,i]  = qBoxCox(runif(nrandom), mean[t.ind[i]], sd, lambda)
+  random.q  = array(NA, dim=c(n.random,n.period))
+  for(i in 1:n.period) random.q[,i]  = qBoxCox(runif(n.random), mean[t.ind[i]], sd, lambda)
 
   system = Sys.info()
   if(system['sysname']=="Windows"){
@@ -165,8 +165,78 @@ rPlotPred = function(obs,t.period, mean, sd,lambda,nrandom) {
   plot(t.ind, random.q[1,], type="l", col="gray50",
        xlab="Time point in test period", ylab="SWH", ylim=c(5,12),
        main="Random predictive trajectories")
-  for(i in 2:nrandom) lines(t.ind, random.q[i,], col="gray50")
+  for(i in 2:n.random) lines(t.ind, random.q[i,], col="gray50")
   lines(t.ind, obs[t.ind], col="black", lwd=2)
+
+}
+
+# Plot random correlation for a selection of time points
+# @param obs The observations to be transformed
+# @param t.period The time period for plotting
+# @param mean The mean value of the distribution
+# @param sd The sd value of the distribution
+# @param lambda The estimated lambda of the distribution
+# @param n.random The number of random predictive trajectories
+# @param training.test The training and the test period
+# @param SWHobs SWH observations for a particular location in the test period
+# @return A figure showing the random correlations
+rCorr = function(obs,
+                 t.period,
+                 mean,
+                 sd,
+                 lambda,
+                 n.random,
+                 training.test,
+                 SWHobs) {
+
+
+  n.period = length(t.period)
+  t.ind  = t.period
+
+  random.q  = array(NA, dim=c(n.random,n.period))
+  for(i in 1:n.period) random.q[,i]  = qBoxCox(runif(n.random), mean[t.ind[i]], sd, lambda)
+
+  sample.q  <- array(NA, dim=c(n.random,n.period))
+  for(i in 1:n.period) sample.q[,i]  <- rank(random.q[,i])
+
+
+  nTest  <- length(training.test[[2]])
+  h.ind  <- training.test[[2]][(nTest-99):nTest]
+  hist.obs  <- t(array(SWHobs[h.ind], dim=c(n.period,n.random)))
+  hist.q  <- array(NA, dim=c(n.random,n.period))
+
+  for(i in 1:n.period) hist.q[,i]  = rank(hist.obs[,i])
+
+  sort.q  <- random.q
+
+  for(i in 1:n.period) sort.q[,i] = sort(random.q[,i])[hist.q[,i]]
+
+  graphDev(width = 7,height = 5)
+  plot(t.ind, sort.q[1,], type="l", col="gray50",
+       xlab="Time point in test period", ylab="SWH", ylim=c(5,12),main="")
+  for(i in 2:n.random) lines(t.ind, sort.q[i,], col="gray50")
+  lines(t.ind, obs[t.ind], col="black", lwd=2)
+
+}
+
+# Prephare graphical device for a given OS
+# @param width Width of the graphical window
+# @param height Height of the grapchical window
+# @return The an OS dependent graphical window
+graphDev = function(width = 7,height = 5) {
+
+  system = Sys.info()
+  if(system['sysname']=="Windows"){
+    windows(width = 7,height = 5)
+  }
+
+  if(system['sysname']=="Linux"){
+    X11(width = 7,height = 5)
+  }
+
+  if(system['sysname']=="Darwin"){
+    quartz("",width = 7,height = 5)
+  }
 }
 
 # Compute PIT values of the Box Cox distribution
