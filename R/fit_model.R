@@ -289,7 +289,13 @@ BoxCoxLambdaKnown = function(obs, lambda) {
 # @param n.test Size of training data
 # @param maxlag Order of AR process
 # @return AR terms for various lags used in model fitting
-makeARterms = function(n.training = 100,n.test = 10, maxlag = 10) {
+makeARterms = function(SWH.bc.standard.training,
+                       SWH.bc.fourier.training,
+                       SWH.bc.standard.test,
+                       SWH.bc.fourier.test,
+                       n.training = 100,
+                       n.test = 10,
+                       maxlag = 10) {
 
   SWH.bc.ar.training.names = rep("",maxlag)
   SWH.bc.fourier.ar.training.names = rep("",maxlag)
@@ -447,7 +453,13 @@ getPreddistr = function(SWH = NA,
     SWH.bc.fourier.test = fourier.test*SWH.bc.standard.test
 
     # Create AR terms for model selection
-    ARterms = makeARterms(n.training = n.training,n.test = n.test,maxlag = maxlag)
+    ARterms = makeARterms(SWH.bc.standard.training = SWH.bc.standard.training,
+                          SWH.bc.fourier.training = SWH.bc.fourier.training,
+                          SWH.bc.standard.test = SWH.bc.standard.test,
+                          SWH.bc.fourier.test = SWH.bc.fourier.test,
+                          n.training = n.training,
+                          n.test = n.test,
+                          maxlag = maxlag)
 
     SWH.bc.ar.training.list = ARterms$SWH.bc.ar.training.list
     SWH.bc.fourier.ar.training.list = ARterms$SWH.bc.fourier.ar.training.list

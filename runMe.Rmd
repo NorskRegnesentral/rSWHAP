@@ -32,13 +32,19 @@ The most recent version of the *rWHAP* package is hosted on a git repository at
 
 In order to install the rWHAP package run the following command:
 
-```{r}
+```{r eval = FALSE}
 devtools::install_git(url = "https://github.com/NorskRegnesentral/rWHAP.git")
 ```
 
 In order to load the package type:
-```{r}
+```{r eval = FALSE}
 library(rWHAP)
+```
+```{r message=FALSE}
+require(glmnet)
+require(forecast)
+require(moments)
+source("R/fit_model.R")
 ```
 
 
@@ -50,8 +56,8 @@ THORDIS: Kanskje vi bør skrive mer om data? Nevne Era Interim? Sjekk med papere
 The table below lists the various variables in the data set.
 
 When the R-package is loaded, the data can be loaded using
-```{r}
-load(SWHdata)
+```{r eval = TRUE}
+load("Data/SWHdata.Rdata")
 ```
 
 To see summary statistics of the SWH in the data:
@@ -86,7 +92,6 @@ training.test = split.data(years = years.all,
 
 Next we fit the model to the training data by estimating the model parameters and obtain predictive distributions. In the example below we have chosen to use latitude cell 4 and longitude cell 4 (the data is a 7x7 latitude longitude grid).
 
-NOTE: Maybe create a data preparation function so that not the whole SWH and SLP data set has to be sent into this function but only data for the position (unless neighbors are needed...need to check...)
 ```{r}
 pred.dist = getPreddistr(SWH = SWH,
           SLP = SLP, 
