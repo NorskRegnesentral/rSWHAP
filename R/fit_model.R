@@ -194,21 +194,19 @@ rCorr = function(obs,
   t.ind  = t.period
 
   random.q  = array(NA, dim=c(n.random,n.period))
-  for(i in 1:n.period) random.q[,i]  = qBoxCox(runif(n.random), mean[t.ind[i]], sd, lambda)
+  for(i in 1:n.period) random.q[,i]  = qBoxCox(runif(n.random), pred.mean[t.ind[i]], pred.sd, pred.lambda)
 
   sample.q  <- array(NA, dim=c(n.random,n.period))
   for(i in 1:n.period) sample.q[,i]  <- rank(random.q[,i])
-
+  sample.q
 
   nTest  <- length(training.test[[2]])
-  h.ind  <- training.test[[2]][(nTest-99):nTest]
+  h.ind  <- training.test[[2]][(nTest-(n.random*n.period-1)):nTest]
   hist.obs  <- t(array(SWHobs[h.ind], dim=c(n.period,n.random)))
   hist.q  <- array(NA, dim=c(n.random,n.period))
-
   for(i in 1:n.period) hist.q[,i]  = rank(hist.obs[,i])
-
+  hist.q
   sort.q  <- random.q
-
   for(i in 1:n.period) sort.q[,i] = sort(random.q[,i])[hist.q[,i]]
 
   graphDev(width = 7,height = 5)
@@ -216,7 +214,6 @@ rCorr = function(obs,
        xlab="Time point in test period", ylab="SWH", ylim=c(5,12),main="")
   for(i in 2:n.random) lines(t.ind, sort.q[i,], col="gray50")
   lines(t.ind, obs[t.ind], col="black", lwd=2)
-
 }
 
 # Prephare graphical device for a given OS
