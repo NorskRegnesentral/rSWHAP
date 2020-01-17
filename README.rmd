@@ -1,32 +1,175 @@
 ---
-title: "The rWHAP package - Wave Height Analysis and Prediction"
-author: "Hugo Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke")
-date: "01/01/2020"
-output: github_document
+output:
+  github_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 <img src="vignettes/figures/NR-logo_utvidet_r32g60b136_small.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
 
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>",
-    fig.path = "man/figures/README-",
-    out.width = "100%",
-    tidy = "styler"
-)
-```
 # The rWHAP package
 ### Wave Height Analysis and Prediction
-##### Hugo Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke
+#### Authors: Hugo L. Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke
 
+***
 
-### Overview
+## Overview
+Describe the package
 
-### Installation of the rWHAP package
-Package dependencies
+### Installation and loading the rWHAP package
+The rWHAP package depends on the following R-packages
+
+  - *glmnet*
+  - *forecast*
+  - *moments*
+
+<!-- end list -->
+
+These dependencies will be automatically installed when installing the rWHAP package.
+
+The most recent version of the *rWHAP* package is hosted on a git repository at
+<https://github.com/NorskRegnesentral/rWHAP.git>.
+
+In order to install the rWHAP package run the following command:
+
+```{r eval = FALSE}
+devtools::install_git(url = "https://github.com/NorskRegnesentral/rWHAP.git")
+```
+
+In order to load the package type:
+```{r eval = FALSE}
+library(rWHAP)
+```
+```{r message=FALSE}
+require(glmnet)
+require(forecast)
+require(moments)
+source("R/fit_model.R")
+```
+
 
 ### Example data
+A small example data set is included. It contains Significant Wave Height (SWH), Sea Level Preassure (SLP) and gradients for the SLP for the years 2006 to 2015. The data is within the latitude range of 53.25 - 57.75 and longitude range of  54.00 - 58.50. The time resolution is 6 hours, i.e., 4 measurements available for each day.
+
+THORDIS: Kanskje vi bør skrive mer om data? Nevne Era Interim? Sjekk med paperet!!!
+
+The table below lists the various variables in the data set.
+
+When the R-package is loaded, the data can be loaded using
+```{r eval = TRUE}
+load("Data/SWHdata.Rdata")
+```
+
+To see summary statistics of the SWH in the data:
+```{r}
+summary(SWH)
+```
+
+For summary statistics of the SLP in the data:
+```{r}
+summary(SLP)
+```
+
+Summary statistics for the gradient of the SLP:
+```{r}
+summary(SLP.grad)
+```
 
 ### Model fitting
+Create Fourier terms to use in the modeling. The Fourier terms are needed for modeling seasonality.
+
+You need to specify the number of observations per year and the number of Fourier terms. Default values are 365.25*4 observations per year and 2 Fourier terms.
+```{r}
+intercept.fourier = fourier(x = rep(1,length(time.all)))
+```
+
+Define the training set and the test set. In this example data from 2006 to 2014 is used for training and data from 2015 is used for testing (this is also default values).
+```{r}
+training.test = split.data(years = years.all,
+                           trainingPeriod = 2006:2014,
+                           testPeriod = 2015)
+```
+
+Next we fit the model to the training data by estimating the model parameters and obtain predictive distributions. In the example below we have chosen to use latitude cell 4 and longitude cell 4 (the data is a 7x7 latitude longitude grid).
+
+```{r}
+pred.dist = getPreddistr(SWH = SWH,
+          SLP = SLP, 
+          SLP.grad = SLP.grad,
+          latCell = 4, 
+          longCell = 4,
+          neig = 2,
+          na.thresh = 500,
+          latSWH = latitudeSWH,
+          lonSWH = longitudeSWH,
+          latSLP = latitudeSLP,
+          longSLP = longitudeSLP,
+          intercept.fourier = intercept.fourier,
+          maxlag = 10)
+
+# Extract the mean, standard deviation and the 
+# estimated lambda parameter for the predictive
+# distribution.
+pred.mean = pred.dist$pred.mean
+pred.sd = pred.dist$pred.sd
+pred.lambda = pred.dist$pred.lambda
+
+print(pred.dist$fits)
+```
+
+To explore the model fit we first create the vector of observed SWHs in the test period for the location of interest.
+```{r}
+obs  <- SWH[4, 4, training.test[[2]]]
+```
+
+One method to assess the goodness of fit of the predictive distribution fits the data is to calculate  probability integral transform (PIT) values and plot a PIT histogram for the test set. PIT histograms graphically compare empirical probabilities from fitted models with a uniform distribution.
+```{r}
+pit  <- pBoxCox(obs, pred.mean, pred.sd, pred.lambda)
+```
+We can calculate the mean absolute error over the test period
+```{r}
+mae = maeEst(obs = obs,
+             mean = pred.mean,
+             sd = pred.sd,
+             lambda = pred.lambda)
+```
+
+Plot the prediction and the observation in the first and last 100 time points of the test period
+```{r}
+plotPred(obs = obs,
+         t.period = c(1:100),
+         mean = pred.mean,
+         sd = pred.sd,
+         lambda = pred.lambda)
+
+plotPred(obs = obs,
+         t.period = c(1361:1460),
+         mean = pred.mean,
+         sd = pred.sd,
+         lambda = pred.lambda)
+
+```
+
+Random predictive trajectories for 10 time points
+```{r}
+rPlotPred(obs = obs,
+         t.period = c(40:49),
+         mean = pred.mean,
+         sd = pred.sd,
+         lambda = pred.lambda,
+         n.random = 10)
+```
+
+Learn correlation from previous timepoints (last 100 time points in test period)
+
+```{r}
+rCorr(obs = obs,
+      t.period = c(40:49),
+      mean = pred.mean,
+      sd = pred.sd,
+      lambda = pred.lambda,
+      n.random = 10,
+      training.test = training.test,
+      SWHobs = SWH[4,4,]) 
+```
