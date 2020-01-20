@@ -37,7 +37,7 @@ repository at <https://github.com/NorskRegnesentral/rWHAP.git>.
 In order to install the rWHAP package run the following command:
 
 ``` r
-devtools::install_github("https://github.com/NorskRegnesentral/rWHAP")
+devtools::install_github("NorskRegnesentral/rWHAP")
 ```
 
 In order to load the package type:
@@ -92,7 +92,7 @@ The table below lists the various variables in the data set.
 When the R-package is loaded, the data can be loaded using
 
 ``` r
-load("Data/SWHdata.Rdata")
+load("data/EraInterimData.Rdata")
 ```
 
 To see summary statistics of the SWH in the data:

@@ -42,7 +42,7 @@ In order to load the package type:
 library(rWHAP)
 ```
 
-```{r eval=FALSE,message=FALSE}
+```{r eval=TRUE,message=FALSE}
 require(glmnet)
 require(forecast)
 require(moments)
@@ -80,7 +80,7 @@ years.all               Year stamp of each ERA-Interim data point
 
 When the R-package is loaded, the data can be loaded using
 ```{r eval = TRUE}
-load("Data/SWHdata.Rdata")
+load("data/EraInterimData.Rdata")
 ```
 
 To see summary statistics of the SWH in the data:
