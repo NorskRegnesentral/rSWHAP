@@ -84,7 +84,7 @@ BoxCoxLambda = function(obs) {
     } else {
       obs.trans[i,] = (obs^lambda[i]-1)/lambda[i]
     }
-    normdev[i] = moments::skewness(obs.trans[i,],na.rm = TRUE)^2 + 0.25*(kurtosis(obs.trans[i,],na.rm = TRUE))^2
+    normdev[i] = moments::skewness(obs.trans[i,],na.rm = TRUE)^2 + 0.25*(moments::kurtosis(obs.trans[i,],na.rm = TRUE))^2
   }
   return(list(data=obs.trans[which.min(normdev),],lambda = lambda[which.min(normdev)]))
 }
