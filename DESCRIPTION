@@ -17,6 +17,6 @@ URL: https://github.com/UPDATE_THIS
 Encoding: UTF-8
 LazyData: TRUE
 Imports: 
-        glmnet
-        forecast
-        moments
+     glmnet,
+     forecast,
+     moments

@@ -37,7 +37,7 @@ repository at <https://github.com/NorskRegnesentral/rWHAP.git>.
 In order to install the rWHAP package run the following command:
 
 ``` r
-devtools::install_git(url = "https://github.com/NorskRegnesentral/rWHAP.git")
+devtools::install_github("https://github.com/NorskRegnesentral/rWHAP")
 ```
 
 In order to load the package type:
