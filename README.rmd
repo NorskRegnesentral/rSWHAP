@@ -38,17 +38,9 @@ devtools::install_github("NorskRegnesentral/rWHAP")
 ```
 
 In order to load the package type:
-```{r eval=FALSE}
+```{r eval=TRUE}
 library(rWHAP)
 ```
-
-```{r eval=TRUE,message=FALSE}
-require(glmnet)
-require(forecast)
-require(moments)
-source("R/fit_model.R")
-```
-
 
 ### Example data
 A small example data set is included in the R-package. ERA-Interim reanalysis of significant wave height ($H_s$) and sea level pressure (SLP) over the area $53.25^{\circ}$ to $- 57.75{\circ}$ longitude and $54.00^{\circ}$ to $58.5^{\circ}$ latitude and for the period 2006 to 2015. The years 2006 - 2014 are used in this example to calibrate and evaluate different statistical models for $H_s$, and year 2015 is used for model evaluation. The data has spatial resolution of $0.75^{\circ} \times 0.75^{\circ}$ and temporal resolutions of six hours. 
@@ -80,7 +72,7 @@ years.all               Year stamp of each ERA-Interim data point
 
 When the R-package is loaded, the data can be loaded using
 ```{r eval = TRUE}
-load("data/EraInterimData.Rdata")
+data("ERAInterim")
 ```
 
 To see summary statistics of the SWH in the data:
