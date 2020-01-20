@@ -250,6 +250,8 @@ uniform distribution.
 pit  <- pBoxCox(obs, pred.mean, pred.sd, pred.lambda)
 ```
 
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
 We can calculate the mean absolute error over the test period
 
 ``` r
@@ -271,13 +273,19 @@ plotPred(obs = obs,
          mean = pred.mean,
          sd = pred.sd,
          lambda = pred.lambda)
+```
 
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
 plotPred(obs = obs,
          t.period = c(1361:1460),
          mean = pred.mean,
          sd = pred.sd,
          lambda = pred.lambda)
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
 Random predictive trajectories for 10 time points
 
@@ -289,6 +297,8 @@ rPlotPred(obs = obs,
          lambda = pred.lambda,
          n.random = 10)
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 Learn correlation from previous timepoints (last 100 time points in test
 period)
@@ -303,3 +313,5 @@ rCorr(obs = obs,
       training.test = training.test,
       SWHobs = SWH[4,4,]) 
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->

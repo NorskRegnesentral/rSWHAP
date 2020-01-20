@@ -95,8 +95,9 @@ BoxCoxLambda = function(obs) {
 # @param mean The mean value of the distribution
 # @param sd The sd value of the distribution
 # @param lambda The estimated lambda of the distribution
+# @param graphDev Logical variable to create a OS specific graphic device
 # @return A figure showing the predictive distribution
-plotPred = function(obs,t.period, mean, sd,lambda) {
+plotPred = function(obs,t.period, mean, sd,lambda, graphD=FALSE) {
   upper  <- qBoxCox(0.95, mean = mean, sd = sd, lambda = lambda)
   lower  <- qBoxCox(0.05, mean = mean, sd = sd, lambda = lambda)
   median  <- qBoxCox(0.5, mean, sd, lambda)
@@ -105,19 +106,7 @@ plotPred = function(obs,t.period, mean, sd,lambda) {
   t.lower  <- lower[t.period]
 
 
-  system = Sys.info()
-  if(system['sysname']=="Windows"){
-    windows(width = 7,height = 5)
-  }
-
-  if(system['sysname']=="Linux"){
-    X11(width = 7,height = 5)
-  }
-
-  if(system['sysname']=="Darwin"){
-    quartz("",width = 7,height = 5)
-  }
-
+  if(graphD) graphDev(width = 7,height = 5)
   plot(t.period, obs[t.period], type="l",
        xlab="Time point in test period", ylab="SWH", ylim=c(0,15),
        main="")
@@ -140,28 +129,22 @@ plotPred = function(obs,t.period, mean, sd,lambda) {
 # @param sd The sd value of the distribution
 # @param lambda The estimated lambda of the distribution
 # @param n.random The number of random predictive trajectories
+# @param graphDev Logical variable to create a OS specific graphic device
 # @return A figure showing the random predictive trajectories
-rPlotPred = function(obs,t.period, mean, sd,lambda,n.random) {
+rPlotPred = function(obs,
+                     t.period,
+                     mean,
+                     sd,
+                     lambda,
+                     n.random,
+                     graphD = FALSE) {
 
   t.ind  = t.period
   n.period = length(t.ind)
   random.q  = array(NA, dim=c(n.random,n.period))
   for(i in 1:n.period) random.q[,i]  = qBoxCox(runif(n.random), mean[t.ind[i]], sd, lambda)
 
-  system = Sys.info()
-  if(system['sysname']=="Windows"){
-    windows(width = 7,height = 5)
-  }
-
-  if(system['sysname']=="Linux"){
-    X11(width = 7,height = 5)
-  }
-
-  if(system['sysname']=="Darwin"){
-    quartz("",width = 7,height = 5)
-  }
-
-
+  if(graphD) graphDev(width = 7,height = 5)
   plot(t.ind, random.q[1,], type="l", col="gray50",
        xlab="Time point in test period", ylab="SWH", ylim=c(5,12),
        main="Random predictive trajectories")
@@ -179,6 +162,7 @@ rPlotPred = function(obs,t.period, mean, sd,lambda,n.random) {
 # @param n.random The number of random predictive trajectories
 # @param training.test The training and the test period
 # @param SWHobs SWH observations for a particular location in the test period
+# @param graphDev Logical variable to create a OS specific graphic device
 # @return A figure showing the random correlations
 rCorr = function(obs,
                  t.period,
@@ -187,7 +171,8 @@ rCorr = function(obs,
                  lambda,
                  n.random,
                  training.test,
-                 SWHobs) {
+                 SWHobs,
+                 graphD = FALSE) {
 
 
   n.period = length(t.period)
@@ -209,7 +194,8 @@ rCorr = function(obs,
   sort.q  <- random.q
   for(i in 1:n.period) sort.q[,i] = sort(random.q[,i])[hist.q[,i]]
 
-  graphDev(width = 7,height = 5)
+
+  if (graphD) graphDev(width = 7,height = 5)
   plot(t.ind, sort.q[1,], type="l", col="gray50",
        xlab="Time point in test period", ylab="SWH", ylim=c(5,12),main="")
   for(i in 2:n.random) lines(t.ind, sort.q[i,], col="gray50")
@@ -242,8 +228,9 @@ graphDev = function(width = 7,height = 5) {
 # @param sd The standard deviation of the predictive distribution
 # @param lambda The estimated Box Cox lambda parameter used in the transformation of the predictive distribution
 # @param plothist Set to TRUE if plotting the histogram of the PIT values
+# @param graphDev Logical variable to create a OS specific graphic device
 # @return The PIT values
-pBoxCox = function(x, mean, sd, lambda,plothist = TRUE) {
+pBoxCox = function(x, mean, sd, lambda,plothist = TRUE,graphD = FALSE) {
   g.x  <- BoxCoxLambdaKnown(x, lambda)
   if(round(lambda,2) < 0) {
     p = pnorm((g.x-mean)/sd) / pnorm((-1/lambda - mean)/sd)
@@ -253,19 +240,7 @@ pBoxCox = function(x, mean, sd, lambda,plothist = TRUE) {
     p = (pnorm((g.x-mean)/sd) - pnorm((-1/lambda - mean)/sd)) / pnorm((1/lambda + mean)/sd)
   }
 
-  system = Sys.info()
-  if(system['sysname']=="Windows"){
-    windows(width = 7,height = 5)
-  }
-
-  if(system['sysname']=="Linux"){
-    X11(width = 7,height = 5)
-  }
-
-  if(system['sysname']=="Darwin"){
-    quartz("",width = 7,height = 5)
-  }
-
+  if(graphD) graphDev(width = 7,height = 5)
   hist(p, freq=FALSE, nclass=10, col="gray", xlab="PIT value",main = "PIT histogram")
   abline(a=1, b=0, lty=2,col = "red")
   return(p)
