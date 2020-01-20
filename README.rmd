@@ -34,7 +34,7 @@ The most recent version of the *rWHAP* package is hosted on a git repository at
 In order to install the rWHAP package run the following command:
 
 ```{r eval = FALSE}
-devtools::install_github("https://github.com/NorskRegnesentral/rWHAP")
+devtools::install_github("NorskRegnesentral/rWHAP")
 ```
 
 In order to load the package type:
@@ -42,7 +42,7 @@ In order to load the package type:
 library(rWHAP)
 ```
 
-```{r message=FALSE}
+```{r eval=FALSE,message=FALSE}
 require(glmnet)
 require(forecast)
 require(moments)

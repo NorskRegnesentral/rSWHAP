@@ -653,16 +653,6 @@ getPreddistr = function(SWH = NA,
   }
   return(list(pred.SWH=SWH.pred, pred.mean=pred.mean, pred.sd=pred.sd, pred.lambda=pred.lambda, fits=fits))
 
-
-  ##########################
-  # Cut this below
-  ##########################
-  pred.dist  <- getPreddistr(j=lonSWH, k=latSWH, neig=spatial.neighborhoods)
-  pred.mean = pred.dist$pred.mean
-  pred.sd = pred.dist$pred.sd
-  pred.lambda = pred.dist$pred.lambda
-  print(pred.dist$fits)
-
 }
 
 
