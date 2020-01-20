@@ -11,7 +11,12 @@
 
 ## Overview
 
-Describe the package
+The rWHAP package contains a statistical model for Significant Wave
+Heights (\(H_s\)) using Seal Level Pressure and spatial information as
+covariates. This document describes how to install the package and how
+to fit the statistical model to a sample data set which is included.
+Several diagonostick tools, both numerical and visual, are implemented
+to state the goodness-of-fit of the statistical model.
 
 ### Installation and loading the rWHAP package
 
@@ -60,16 +65,29 @@ source("R/fit_model.R")
 
 ### Example data
 
-A small example data set is included. It contains Significant Wave
-Height (SWH), Sea Level Preassure (SLP) and gradients for the SLP for
-the years 2006 to 2015. The data is within the latitude range of 53.25 -
-57.75 and longitude range of 54.00 - 58.50. The time resolution is 6
-hours, i.e., 4 measurements available for each day.
-
-THORDIS: Kanskje vi bør skrive mer om data? Nevne Era Interim? Sjekk med
-paperet\!\!\!
+A small example data set is included in the R-package. ERA-Interim
+reanalysis of significant wave height (\(H_s\)) and sea level pressure
+(SLP) over the area \(53.25^{\circ}\) to \(- 57.75{\circ}\) longitude
+and \(54.00^{\circ}\) to \(58.5^{\circ}\) latitude and for the period
+2006 to 2015. The years 2006 - 2014 are used in this example to
+calibrate and evaluate different statistical models for \(H_s\), and
+year 2015 is used for model evaluation. The data has spatial resolution
+of \(0.75^{\circ} \times 0.75^{\circ}\) and temporal resolutions of six
+hours.
 
 The table below lists the various variables in the data set.
+
+| Variable name | Description                                |
+| :------------ | :----------------------------------------- |
+| SWH           | Significant Wave Height                    |
+| SLP           | Sea Level Pressure                         |
+| SLP.grad      | Gradient of Sea Level Pressure             |
+| latitudeSWH   | Latitude values of SWH                     |
+| longitudeSWH  | Longitude values of SWH                    |
+| latitudeSLP   | Latitude values of SLP                     |
+| longitudeSWH  | Longitude values of SLP                    |
+| time.all      | Time stamps of each ERA-Interim data point |
+| years.all     | Year stamp of each ERA-Interim data point  |
 
 When the R-package is loaded, the data can be loaded using
 
