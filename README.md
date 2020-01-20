@@ -46,23 +46,6 @@ In order to load the package type:
 library(rWHAP)
 ```
 
-``` r
-require(glmnet)
-```
-
-    ## Warning: package 'glmnet' was built under R version 3.6.2
-
-``` r
-require(forecast)
-```
-
-    ## Warning: package 'forecast' was built under R version 3.6.2
-
-``` r
-require(moments)
-source("R/fit_model.R")
-```
-
 ### Example data
 
 A small example data set is included in the R-package. ERA-Interim
@@ -92,7 +75,7 @@ The table below lists the various variables in the data set.
 When the R-package is loaded, the data can be loaded using
 
 ``` r
-load("data/EraInterimData.Rdata")
+data("ERAInterim")
 ```
 
 To see summary statistics of the SWH in the data:
@@ -169,6 +152,19 @@ pred.dist = getPreddistr(SWH = SWH,
     ## Total number of potential predictors used in LASSO selection: 69 
     ## Number of predictors selected by LASSO: 52 
     ## Fitting linear model with the variables from the LASSO selection...
+
+    ## Registered S3 method overwritten by 'xts':
+    ##   method     from
+    ##   as.zoo.xts zoo
+
+    ## Registered S3 method overwritten by 'quantmod':
+    ##   method            from
+    ##   as.zoo.data.frame zoo
+
+    ## Registered S3 methods overwritten by 'forecast':
+    ##   method             from    
+    ##   fitted.fracdiff    fracdiff
+    ##   residuals.fracdiff fracdiff
 
 ``` r
 # Extract the mean, standard deviation and the 
@@ -268,7 +264,7 @@ uniform distribution.
 pit  <- pBoxCox(obs, pred.mean, pred.sd, pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 We can calculate the mean absolute error over the test period
 
@@ -293,7 +289,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 plotPred(obs = obs,
@@ -303,7 +299,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 Random predictive trajectories for 10 time points
 
@@ -316,7 +312,7 @@ rPlotPred(obs = obs,
          n.random = 10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 Learn correlation from previous timepoints (last 100 time points in test
 period)
@@ -332,4 +328,4 @@ rCorr(obs = obs,
       SWHobs = SWH[4,4,]) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
