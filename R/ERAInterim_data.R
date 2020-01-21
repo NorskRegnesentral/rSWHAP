@@ -5,18 +5,15 @@
 #'
 #' @docType data
 #'
-#' @usage data(ERAInterim)
+#' @usage data("ERAInterim")
 #'
 #' @format An object of class `"cross"`; see [qtl::read.cross()].
 #'
 #' @keywords datasets
 #'
-#' @references
-#' ([PubMed](https://www.ncbi.nlm.nih.gov/pubmed/23979570))
-#'
-#' @source ERA-INTERIM, <https://phenome.jax.org/projects/Moore1b>
+#' @source ERA-INTERIM, <https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era-interim>
 #'
 #' @examples
-#' data(ERAInterim)
+#' data("ERAInterim")
 #' summary(SWH)
 #'
