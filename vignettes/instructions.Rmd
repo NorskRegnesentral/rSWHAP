@@ -36,7 +36,7 @@ The most recent version of the *rWHAP* package is hosted on a git repository at
 In order to install the rWHAP package run the following command:
 
 ```{r eval = FALSE}
-devtools::install_github("NorskRegnesentral/rWHAP")
+devtools::install_github("NorskRegnesentral/rWHAP", build_vignettes = TRUE)
 ```
 
 In order to load the package type:

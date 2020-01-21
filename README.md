@@ -37,13 +37,19 @@ repository at <https://github.com/NorskRegnesentral/rWHAP.git>.
 In order to install the rWHAP package run the following command:
 
 ``` r
-devtools::install_github("NorskRegnesentral/rWHAP")
+devtools::install_github("NorskRegnesentral/rWHAP", build_vignettes = TRUE)
 ```
 
 In order to load the package type:
 
 ``` r
 library(rWHAP)
+```
+
+To load the vignette type:
+
+``` r
+vignette("instructions",package = "rWHAP")
 ```
 
 ### Example data
@@ -264,7 +270,7 @@ uniform distribution.
 pit  <- pBoxCox(obs, pred.mean, pred.sd, pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 We can calculate the mean absolute error over the test period
 
@@ -289,7 +295,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 plotPred(obs = obs,
@@ -299,7 +305,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
 Random predictive trajectories for 10 time points
 
@@ -312,7 +318,7 @@ rPlotPred(obs = obs,
          n.random = 10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 Learn correlation from previous timepoints (last 100 time points in test
 period)
@@ -328,4 +334,4 @@ rCorr(obs = obs,
       SWHobs = SWH[4,4,]) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
