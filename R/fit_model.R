@@ -53,6 +53,37 @@ qBoxCox = function(p, mean, sd, lambda) {
   return(q)
 }
 
+# Compute density of the Box Cox distribution
+# @param obs The probability
+# @param mean The mean of the distribution
+# @param sd The standard deviation of the distribution
+# @param lambda The lambda used in the Box Cox transformation
+# @param log Logical value to switch between log or not
+# @return The density values of the Box Cox distribution
+dboxcox = function(obs, mean, sd, lambda, log = FALSE) {
+  if(log == FALSE) {
+    val = rep(0, length(obs))
+    if(round(lambda,2) < 0) {
+      val[obs>0] = obs[obs>0]^(lambda-1)*sd^(-1)*dnorm(((obs[obs>0]^lambda-1)/lambda-mean)/sd)*pnorm((-1/lambda-mean)/sd)^(-1)
+    } else if(round(lambda,2) == 0) {
+      val = dlnorm(obs, mean, sd, log = FALSE)
+    } else {
+      val[obs>0] = obs[obs>0]^(lambda-1)*sd^(-1)*dnorm(((obs[obs>0]^lambda-1)/lambda-mean)/sd)*pnorm((1/lambda+mean)/sd)^(-1)
+    }
+  } else {
+    val = rep(-Inf, length(obs))
+    if(round(lambda,2) < 0) {
+      val[obs>0] = (lambda-1)*log(obs[obs>0]) - log(sd) + dnorm(((obs[obs>0]^lambda-1)/lambda-mean )/sd, log = TRUE) - log(pnorm( (-1/lambda - mean)/sd))
+    } else if(round(lambda,2) == 0) {
+      val = dlnorm(obs, mean, sd, log = TRUE)
+    } else {
+      val[obs>0] = (lambda-1)*log(obs[obs>0]) - log(sd) + dnorm(((obs[obs>0]^lambda-1)/lambda-mean)/sd, log = TRUE) - log(pnorm((1/lambda+mean)/sd))
+    }
+  }
+  return(val)
+}
+
+
 # Compute the mean absolute error
 # @param obs Observations
 # @param mean The mean of the fitted distribution
@@ -66,6 +97,86 @@ maeEst = function(obs,mean, sd, lambda) {
   cat("\n The mean absolute error is:",mae,"\n")
 
   return(mae)
+}
+
+# Compute the log score
+# @param obs Observations
+# @param mean The mean of the fitted distribution
+# @param sd The standard deviation of the fitted distribution
+# @param lambda The lambda used in the Box Cox transformation
+# @return The mean absolute error of the Box Cox distribution
+logsEst = function(obs,mean, sd, lambda,log = TRUE) {
+
+  logsD = dboxcox(obs = obs, mean = mean, sd = sd, lambda = lambda, log = log)
+  logs = -mean(logsD)
+  cat("\n The log score is:",logs,"\n")
+
+  return(logs)
+}
+
+# Calculates the PIT values
+# @param obs.bc Box Cox transformed observations
+# @param mean The mean of the fitted distribution
+# @param sd The standard deviation of the fitted distribution
+# @param lambda The lambda used in the Box Cox transformation
+# @return The PIT values normalized to the zero one intervall
+ppredbc = function(obs, mean, sd, lambda) {
+  if(round(lambda,2) < 0) {
+    p = pnorm(obs = obs, mean = mean, sd = sd)/pnorm(-1/lambda, mean = mean, sd = sd)
+  } else if(round(lambda,2) == 0) {
+    p = pnorm(obs, mean = mean, sd = sd)
+  } else { # lambda > 0
+    p = pnorm(obs, mean = mean, sd = sd)/(1-pnorm(-1/lambda, mean = mean, sd = sd))
+  }
+  return(p)
+}
+
+
+# Computes the reliability index
+# @param obs.bc Box Cox transformed observations
+# @param mean The mean of the fitted distribution
+# @param sd The standard deviation of the fitted distribution
+# @param lambda The lambda used in the Box Cox transformation
+# @param n.bins Number of bins used
+# @return The reliability index (RIDX)
+ribxEst = function(obs, mean, sd, lambda, n.bins = 20) {
+
+  U = ppredbc(obs = obs,
+             mean = mean,
+             sd = sd,
+             lambda = lambda)
+
+  U = U[ !is.na(U) ]
+  n = length(U)
+  if(n > 0) {
+    seps = seq(0, 1, length.out = n.bins+1)
+    probs = rep(NA, n.bins)
+    for(i in 1:n.bins) {
+      probs[i] = sum( U >= seps[i] & U <= seps[i+1] )
+    }
+    probs = probs/n
+    unif.prob = rep(1/n.bins, n.bins)
+    RI = mean(abs(probs - unif.prob)*100)
+  } else {
+    RI = NA
+  }
+
+  cat("\n The reliability index is:",RI,"\n")
+
+  return(RI)
+}
+
+# Computes the Continuous Ranked Probability Score (CRPS)
+# @param obs.bc Box Cox transformed observations
+# @param mean The mean of the fitted distribution
+# @param sd The standard deviation of the fitted distribution
+# @param lambda The lambda used in the Box Cox transformation
+# @return The Continuous Ranked Probability Score (CRPS)
+crpsEst = function(obs, mean, sd, lambda) {
+
+  Rcpp::sourceCpp("RMSE_CRPS_MEAN.cpp")
+
+  crpsEst = mean(CRPS(obs, mean, sd, lambda, n.bc.samp), na.rm = TRUE)
 }
 
 # Compute the root mean squared error

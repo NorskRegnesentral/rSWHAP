@@ -161,6 +161,33 @@ We can calculate the root mean squared error over the test period
 rmse = rmseEst(obs = obs, mean = pred.mean)
 ```
 
+To calculate the log-score type:
+```{r}
+logs = logsEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               log = TRUE)
+```
+
+To calculate the reliability index (RIBX) use:
+HUGO: Bør vi bruke Box Cox transformerte obs?
+```{r}
+ribx = ribxEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda)
+```
+
+To calculate the Continuous Ranked Probability Score (CRPS) use:
+```{r eval = FALSE}
+crps = crpsEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda)
+```
+
+
 Plot the prediction and the observation in the first and last 100 time points of the test period
 ```{r}
 plotPred(obs = obs,

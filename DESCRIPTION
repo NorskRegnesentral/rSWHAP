@@ -19,7 +19,8 @@ LazyData: TRUE
 Imports: 
      glmnet,
      forecast,
-     moments
+     moments,
+     Rcpp
 Suggests:
      knitr,
      rmarkdown
