@@ -121,12 +121,14 @@ logsEst = function(obs,mean, sd, lambda,log = TRUE) {
 # @param lambda The lambda used in the Box Cox transformation
 # @return The PIT values normalized to the zero one intervall
 ppredbc = function(obs, mean, sd, lambda) {
+  g.x  <- BoxCoxLambdaKnown(obs, lambda)
+
   if(round(lambda,2) < 0) {
-    p = pnorm(obs = obs, mean = mean, sd = sd)/pnorm(-1/lambda, mean = mean, sd = sd)
+    p = pnorm((g.x-mean)/sd) / pnorm((-1/lambda - mean)/sd)
   } else if(round(lambda,2) == 0) {
-    p = pnorm(obs, mean = mean, sd = sd)
+    p = pnorm((g.x-mean)/sd)
   } else { # lambda > 0
-    p = pnorm(obs, mean = mean, sd = sd)/(1-pnorm(-1/lambda, mean = mean, sd = sd))
+    p = (pnorm((g.x-mean)/sd) - pnorm((-1/lambda - mean)/sd)) / pnorm((1/lambda + mean)/sd)
   }
   return(p)
 }
