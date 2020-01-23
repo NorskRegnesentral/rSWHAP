@@ -68,6 +68,29 @@ maeEst = function(obs,mean, sd, lambda) {
   return(mae)
 }
 
+# Compute the root mean squared error
+# @param obs Observations
+# @param mean The mean of the fitted distribution
+# @return The root mean squared error of the predictive distribution
+rmseEst = function(obs,mean) {
+
+  rmse  <- sqrt(mean(abs(obs - mean)))
+  cat("\n The root mean squared error is:",mae,"\n")
+
+  return(rmse)
+}
+
+# Calculates the continuous ranked probability score (CRPS)
+# @param obs Observations
+# @param mean The mean of the fitted distribution
+# @return The root mean squared error of the predictive distribution
+crpsEst = function(obs,mean) {
+
+  crps  <- sqrt(mean(abs(obs - mean)))
+  cat("\n The Continuous Ranked Probability Score (CRPS) is:",mae,"\n")
+
+  return(crps)
+}
 
 # Performs Box-Cox transformation of the data. The transformation parameter (lambda) is chosen to minimize deviation from the normal distribution (minumum sum of squared skewness and squared kurtosis)
 # @param obs The observations to be transformed

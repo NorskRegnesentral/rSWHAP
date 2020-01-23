@@ -1,6 +1,6 @@
-Package: rWHAP
+Package: rSWHAP
 Type: Package
-Title: Wave Height Analysis and Prediction
+Title: Significant Wave Height Analysis and Prediction
 Version: 0.1.0
 Author: c(person("Hugo", "Hammer", email = "Hugo.Hammer@hioa.no",
                   role = c("aut", "cre")),
@@ -13,7 +13,7 @@ Author: c(person("Hugo", "Hammer", email = "Hugo.Hammer@hioa.no",
 Maintainer: Thordis Thorarinsdottir <Thordis.Thorarinsdottir@nr.no>
 Description: Statistical prediction of Significant Wave Height (SWH) based on Sea Level Preassure (SLP)
 License: GPL-2
-URL: https://github.com/NorskRegnesentral/rWHAP
+URL: https://github.com/NorskRegnesentral/rSWHAP
 Encoding: UTF-8
 LazyData: TRUE
 Imports: 

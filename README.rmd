@@ -8,17 +8,17 @@ output:
 <img src="vignettes/figures/NR-logo_utvidet_r32g60b136_small.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
 
 
-# The rWHAP package
-### Wave Height Analysis and Prediction
+# The rSWAP package
+### Significant Wave Height Analysis and Prediction
 #### Authors: Hugo L. Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke
 
 ***
 
 ## Overview
-The rWHAP package contains a statistical model for Significant Wave Heights ($H_s$) using Seal Level Pressure and spatial information as covariates. This document describes how to install the package and how to fit the statistical model to a sample data set which is included. Several diagonostick tools, both numerical and visual, are implemented to state the goodness-of-fit of the statistical model.
+The rSWAP package contains a statistical model for Significant Wave Heights ($H_s$) using Seal Level Pressure and spatial information as covariates. This document describes how to install the package and how to fit the statistical model to a sample data set which is included. Several diagonostick tools, both numerical and visual, are implemented to state the goodness-of-fit of the statistical model.
 
-### Installation and loading the rWHAP package
-The rWHAP package depends on the following R-packages
+### Installation and loading the rSWAP package
+The rSWAP package depends on the following R-packages
 
   - *glmnet*
   - *forecast*
@@ -26,25 +26,25 @@ The rWHAP package depends on the following R-packages
 
 <!-- end list -->
 
-These dependencies will be automatically installed when installing the rWHAP package.
+These dependencies will be automatically installed when installing the rSWAP package.
 
-The most recent version of the *rWHAP* package is hosted on a git repository at
-<https://github.com/NorskRegnesentral/rWHAP.git>.
+The most recent version of the *rSWAP* package is hosted on a git repository at
+<https://github.com/NorskRegnesentral/rSWAP.git>.
 
-In order to install the rWHAP package run the following command:
+In order to install the rSWAP package run the following command:
 
 ```{r eval = FALSE}
-devtools::install_github("NorskRegnesentral/rWHAP", build_vignettes = TRUE)
+devtools::install_github("NorskRegnesentral/rSWAP", build_vignettes = TRUE)
 ```
 
 In order to load the package type:
 ```{r eval=TRUE}
-library(rWHAP)
+library(rSWAP)
 ```
 
 To load the vignette type:
 ```{r eval=FALSE}
-vignette("instructions",package = "rWHAP")
+vignette("instructions",package = "rSWAP")
 ```
 
 
@@ -154,6 +154,11 @@ mae = maeEst(obs = obs,
              mean = pred.mean,
              sd = pred.sd,
              lambda = pred.lambda)
+```
+
+We can calculate the root mean squared error over the test period
+```{r}
+rmse = rmseEst(obs = obs, mean = pred.mean)
 ```
 
 Plot the prediction and the observation in the first and last 100 time points of the test period
