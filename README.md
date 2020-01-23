@@ -293,6 +293,41 @@ rmse = rmseEst(obs = obs, mean = pred.mean)
     ## 
     ##  The root mean squared error is: 0.2328819
 
+To calculate the log-score type:
+
+``` r
+logs = logsEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               log = TRUE)
+```
+
+    ## 
+    ##  The log score is: 0.08712402
+
+To calculate the reliability index (RIBX) use: HUGO: Bør vi bruke Box
+Cox transformerte obs?
+
+``` r
+ribx = ribxEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda)
+```
+
+    ## 
+    ##  The reliability index is: 0.8150685
+
+To calculate the Continuous Ranked Probability Score (CRPS) use:
+
+``` r
+crps = crpsEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda)
+```
+
 Plot the prediction and the observation in the first and last 100 time
 points of the test period
 
@@ -304,7 +339,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 plotPred(obs = obs,
@@ -314,7 +349,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
 
 Random predictive trajectories for 10 time points
 
@@ -327,7 +362,7 @@ rPlotPred(obs = obs,
          n.random = 10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 Learn correlation from previous timepoints (last 100 time points in test
 period)
@@ -343,4 +378,4 @@ rCorr(obs = obs,
       SWHobs = SWH[4,4,]) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
