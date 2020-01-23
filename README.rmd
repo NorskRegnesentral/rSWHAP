@@ -8,17 +8,17 @@ output:
 <img src="vignettes/figures/NR-logo_utvidet_r32g60b136_small.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
 
 
-# The rSWAP package
+# The rSWHAP package
 ### Significant Wave Height Analysis and Prediction
 #### Authors: Hugo L. Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke
 
 ***
 
 ## Overview
-The rSWAP package contains a statistical model for Significant Wave Heights ($H_s$) using Seal Level Pressure and spatial information as covariates. This document describes how to install the package and how to fit the statistical model to a sample data set which is included. Several diagonostick tools, both numerical and visual, are implemented to state the goodness-of-fit of the statistical model.
+The rSWHAP package contains a statistical model for Significant Wave Heights ($H_s$) using Seal Level Pressure and spatial information as covariates. This document describes how to install the package and how to fit the statistical model to a sample data set which is included. Several diagonostick tools, both numerical and visual, are implemented to state the goodness-of-fit of the statistical model.
 
-### Installation and loading the rSWAP package
-The rSWAP package depends on the following R-packages
+### Installation and loading the rSWHAP package
+The rSWHAP package depends on the following R-packages
 
   - *glmnet*
   - *forecast*
@@ -26,25 +26,25 @@ The rSWAP package depends on the following R-packages
 
 <!-- end list -->
 
-These dependencies will be automatically installed when installing the rSWAP package.
+These dependencies will be automatically installed when installing the rSWHAP package.
 
-The most recent version of the *rSWAP* package is hosted on a git repository at
-<https://github.com/NorskRegnesentral/rSWAP.git>.
+The most recent version of the *rSWHAP* package is hosted on a git repository at
+<https://github.com/NorskRegnesentral/rSWHAP.git>.
 
-In order to install the rSWAP package run the following command:
+In order to install the rSWHAP package run the following command:
 
 ```{r eval = FALSE}
-devtools::install_github("NorskRegnesentral/rSWAP", build_vignettes = TRUE)
+devtools::install_github("NorskRegnesentral/rSWHAP", build_vignettes = TRUE)
 ```
 
 In order to load the package type:
 ```{r eval=TRUE}
-library(rSWAP)
+library(rSWHAP)
 ```
 
 To load the vignette type:
 ```{r eval=FALSE}
-vignette("instructions",package = "rSWAP")
+vignette("instructions",package = "rSWHAP")
 ```
 
 

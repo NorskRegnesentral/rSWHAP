@@ -1,9 +1,9 @@
 
 <img src="vignettes/figures/NR-logo_utvidet_r32g60b136_small.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
 
-# The rWHAP package
+# The rSWHAP package
 
-### Wave Height Analysis and Prediction
+### Significant Wave Height Analysis and Prediction
 
 #### Authors: Hugo L. Hammer, Tor Arne Oigard, Thordis Thorarinsdottir and Hanne Rognebakke
 
@@ -11,16 +11,16 @@
 
 ## Overview
 
-The rWHAP package contains a statistical model for Significant Wave
+The rSWHAP package contains a statistical model for Significant Wave
 Heights (\(H_s\)) using Seal Level Pressure and spatial information as
 covariates. This document describes how to install the package and how
 to fit the statistical model to a sample data set which is included.
 Several diagonostick tools, both numerical and visual, are implemented
 to state the goodness-of-fit of the statistical model.
 
-### Installation and loading the rWHAP package
+### Installation and loading the rSWHAP package
 
-The rWHAP package depends on the following R-packages
+The rSWHAP package depends on the following R-packages
 
   - *glmnet*
   - *forecast*
@@ -29,27 +29,27 @@ The rWHAP package depends on the following R-packages
 <!-- end list -->
 
 These dependencies will be automatically installed when installing the
-rWHAP package.
+rSWHAP package.
 
-The most recent version of the *rWHAP* package is hosted on a git
-repository at <https://github.com/NorskRegnesentral/rWHAP.git>.
+The most recent version of the *rSWHAP* package is hosted on a git
+repository at <https://github.com/NorskRegnesentral/rSWHAP.git>.
 
-In order to install the rWHAP package run the following command:
+In order to install the rSWHAP package run the following command:
 
 ``` r
-devtools::install_github("NorskRegnesentral/rWHAP", build_vignettes = TRUE)
+devtools::install_github("NorskRegnesentral/rSWHAP", build_vignettes = TRUE)
 ```
 
 In order to load the package type:
 
 ``` r
-library(rWHAP)
+library(rSWHAP)
 ```
 
 To load the vignette type:
 
 ``` r
-vignette("instructions",package = "rWHAP")
+vignette("instructions",package = "rSWHAP")
 ```
 
 ### Example data
@@ -284,6 +284,15 @@ mae = maeEst(obs = obs,
     ## 
     ##  The mean absolute error is: 0.2328819
 
+We can calculate the root mean squared error over the test period
+
+``` r
+rmse = rmseEst(obs = obs, mean = pred.mean)
+```
+
+    ## 
+    ##  The root mean squared error is: 0.2328819
+
 Plot the prediction and the observation in the first and last 100 time
 points of the test period
 
@@ -295,7 +304,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 plotPred(obs = obs,
@@ -305,7 +314,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 Random predictive trajectories for 10 time points
 
@@ -318,7 +327,7 @@ rPlotPred(obs = obs,
          n.random = 10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 Learn correlation from previous timepoints (last 100 time points in test
 period)
@@ -334,4 +343,4 @@ rCorr(obs = obs,
       SWHobs = SWH[4,4,]) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
