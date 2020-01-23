@@ -2,7 +2,7 @@ Package: rSWHAP
 Type: Package
 Title: Significant Wave Height Analysis and Prediction
 Version: 0.1.0
-Author: c(person("Hugo", "Hammer", email = "Hugo.Hammer@hioa.no",
+Author: c(person("Hugo", "Hammer", email = "hugoh@oslomet.no",
                   role = c("aut", "cre")),
                   person("Tor Arne", "Oigard", email = "Tor.Arne.Oigard@nr.no",
                   role = c("aut", "cre")),
