@@ -104,11 +104,16 @@ maeEst = function(obs,mean, sd, lambda) {
 # @param mean The mean of the fitted distribution
 # @param sd The standard deviation of the fitted distribution
 # @param lambda The lambda used in the Box Cox transformation
-# @return The mean absolute error of the Box Cox distribution
+# @return The -log score. The lower value, the better.
 logsEst = function(obs,mean, sd, lambda,log = TRUE) {
 
-  logsD = dboxcox(obs = obs, mean = mean, sd = sd, lambda = lambda, log = log)
-  logs = -mean(logsD)
+  logsD = dboxcox(obs = obs,
+                  mean = mean,
+                  sd = sd,
+                  lambda = lambda,
+                  log = log)
+
+  logs = mean(logsD)
   cat("\n The log score is:",logs,"\n")
 
   return(logs)
@@ -121,15 +126,23 @@ logsEst = function(obs,mean, sd, lambda,log = TRUE) {
 # @param lambda The lambda used in the Box Cox transformation
 # @return The PIT values normalized to the zero one intervall
 ppredbc = function(obs, mean, sd, lambda) {
-  g.x  <- BoxCoxLambdaKnown(obs, lambda)
+  obs.bc  <- BoxCoxLambdaKnown(obs, lambda)
 
   if(round(lambda,2) < 0) {
-    p = pnorm((g.x-mean)/sd) / pnorm((-1/lambda - mean)/sd)
+    p = pnorm(obs.bc, mean = mean, sd = sd)/pnorm(-1/lambda, mean = mean, sd = sd)
   } else if(round(lambda,2) == 0) {
-    p = pnorm((g.x-mean)/sd)
+    p = pnorm(obs.bc, mean = mean, sd = sd)
   } else { # lambda > 0
-    p = (pnorm((g.x-mean)/sd) - pnorm((-1/lambda - mean)/sd)) / pnorm((1/lambda + mean)/sd)
+    p = pnorm(obs.bc, mean = mean, sd = sd)/(1-pnorm(-1/lambda, mean = mean, sd = sd))
   }
+
+  # if(round(lambda,2) < 0) {
+  #   p = pnorm((g.x-mean)/sd) / pnorm((-1/lambda - mean)/sd)
+  # } else if(round(lambda,2) == 0) {
+  #   p = pnorm((g.x-mean)/sd)
+  # } else { # lambda > 0
+  #   p = (pnorm((g.x-mean)/sd) - pnorm((-1/lambda - mean)/sd)) / pnorm((1/lambda + mean)/sd)
+  # }
   return(p)
 }
 
@@ -188,7 +201,7 @@ crpsEst = function(obs, mean, sd, lambda) {
 rmseEst = function(obs,mean) {
 
   rmse  <- sqrt(mean(abs(obs - mean)))
-  cat("\n The root mean squared error is:",mae,"\n")
+  cat("\n The root mean squared error is:",rmse,"\n")
 
   return(rmse)
 }
@@ -200,7 +213,7 @@ rmseEst = function(obs,mean) {
 crpsEst = function(obs,mean) {
 
   crps  <- sqrt(mean(abs(obs - mean)))
-  cat("\n The Continuous Ranked Probability Score (CRPS) is:",mae,"\n")
+  cat("\n The Continuous Ranked Probability Score (CRPS) is:",crps,"\n")
 
   return(crps)
 }
