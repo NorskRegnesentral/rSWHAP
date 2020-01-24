@@ -1,5 +1,5 @@
 
-<img src="vignettes/figures/NR-logo_utvidet_r32g60b136_small.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
+<img src="vignettes/figures/Logos.png" style="position:absolute;top:0px;right:0px;" align="right" height="30px"/>
 
 # The rSWHAP package
 
