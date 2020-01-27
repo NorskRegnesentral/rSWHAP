@@ -159,19 +159,6 @@ pred.dist = getPreddistr(SWH = SWH,
     ## Number of predictors selected by LASSO: 52 
     ## Fitting linear model with the variables from the LASSO selection...
 
-    ## Registered S3 method overwritten by 'xts':
-    ##   method     from
-    ##   as.zoo.xts zoo
-
-    ## Registered S3 method overwritten by 'quantmod':
-    ##   method            from
-    ##   as.zoo.data.frame zoo
-
-    ## Registered S3 methods overwritten by 'forecast':
-    ##   method             from    
-    ##   fitted.fracdiff    fracdiff
-    ##   residuals.fracdiff fracdiff
-
 ``` r
 # Extract the mean, standard deviation and the 
 # estimated lambda parameter for the predictive
@@ -253,6 +240,22 @@ print(pred.dist$fits)
     ## Multiple R-squared:  0.9745, Adjusted R-squared:  0.9744 
     ## F-statistic:  9615 on 52 and 13095 DF,  p-value: < 2.2e-16
 
+There is a function to simulate from the predictive distribution.
+
+``` r
+predObs = rpred(n = 1000, 
+                mean = pred.mean, 
+                sd = pred.sd, 
+                lambda = pred.lambda, 
+                approxn = FALSE)
+hist(predObs,
+     col = "gray",
+     xlab = "The predictive distribution",
+     main = "Samples from the predictive distribution")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
 To explore the model fit we first create the vector of observed SWHs in
 the test period for the location of interest.
 
@@ -270,7 +273,7 @@ uniform distribution.
 pit  <- pBoxCox(obs, pred.mean, pred.sd, pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 We can calculate the mean absolute error over the test period
 
@@ -287,11 +290,15 @@ mae = maeEst(obs = obs,
 We can calculate the root mean squared error over the test period
 
 ``` r
-rmse = rmseEst(obs = obs, mean = pred.mean)
+rmse = rmseEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000)
 ```
 
     ## 
-    ##  The root mean squared error is: 0.2328819
+    ##  The root mean squared error is: 0.3619098
 
 To calculate the log-score type:
 
@@ -304,7 +311,7 @@ logs = logsEst(obs = obs,
 ```
 
     ## 
-    ##  The log score is: 0.08712402
+    ##  The log score is: -0.08712402
 
 To calculate the reliability index (RIBX) use:
 
@@ -332,6 +339,50 @@ ribx = ribxEst(obs = obs,
 
 <!-- ``` -->
 
+You can get a summary table containing all performance measures
+implemented:
+
+``` r
+perfM = perfMeasures(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000)
+```
+
+    ## 
+    ##  =======================================================
+    ## 
+    ##  Summary table of the performance measures
+    ##  -----------------------------------------
+    ## 
+    ##  The mean absolute error is: 0.2328819 
+    ##  The root mean squared error is: 0.3620938 
+    ##  The log score is: -0.08712402 
+    ##  The reliability index is: 0.8150685 
+    ## 
+    ##  =======================================================
+
+``` r
+#If you don't want to have the results of each printed to screen 
+#but only interested in the numbers use print2screen = FALSE
+perfM = perfMeasures(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000,
+               print2screen = FALSE)
+
+#Have a look at the values
+perfM
+```
+
+    ##   Performance.measure       Value
+    ## 1                 MAE  0.23288189
+    ## 2                RMSE  0.36194286
+    ## 3                Logs -0.08712402
+    ## 4                RIBX  0.81506849
+
 Plot the prediction and the observation in the first and last 100 time
 points of the test period
 
@@ -343,7 +394,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 plotPred(obs = obs,
@@ -353,9 +404,10 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
 
-Random predictive trajectories for 10 time points
+Random predictive trajectories for 10 time points THORDIS: Forklare
+hvorfor vi gjør dette?
 
 ``` r
 rPlotPred(obs = obs,
@@ -366,10 +418,10 @@ rPlotPred(obs = obs,
          n.random = 10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 Learn correlation from previous timepoints (last 100 time points in test
-period)
+period) THORDIS: Forklare hvorfor vi gjør dette?
 
 ``` r
 rCorr(obs = obs,
@@ -382,4 +434,4 @@ rCorr(obs = obs,
       SWHobs = SWH[4,4,]) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
