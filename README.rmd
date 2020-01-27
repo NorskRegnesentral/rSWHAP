@@ -138,6 +138,21 @@ pred.lambda = pred.dist$pred.lambda
 print(pred.dist$fits)
 ```
 
+There is a function to simulate from the predictive distribution.
+```{r}
+predObs = rpred(n = 1000, 
+                mean = pred.mean, 
+                sd = pred.sd, 
+                lambda = pred.lambda, 
+                approxn = FALSE)
+windows(width = 7, height = 5)
+hist(predObs,
+     col = "gray",
+     xlab = "The predictive distribution",
+     main = "Samples from the predictive distribution")
+```
+
+
 To explore the model fit we first create the vector of observed SWHs in the test period for the location of interest.
 ```{r}
 obs  <- SWH[4, 4, training.test[[2]]]
@@ -158,7 +173,11 @@ mae = maeEst(obs = obs,
 
 We can calculate the root mean squared error over the test period
 ```{r}
-rmse = rmseEst(obs = obs, mean = pred.mean)
+rmse = rmseEst(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000)
 ```
 
 To calculate the log-score type:
@@ -186,6 +205,27 @@ ribx = ribxEst(obs = obs,
 <!--                lambda = pred.lambda) -->
 <!-- ``` -->
 
+You can get a summary table containing all performance measures implemented:
+```{r}
+perfM = perfMeasures(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000)
+
+#If you don't want to have the results of each printed to screen 
+#but only interested in the numbers use print2screen = FALSE
+perfM = perfMeasures(obs = obs, 
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000,
+               print2screen = FALSE)
+
+#Have a look at the values
+perfM
+```
+
 
 Plot the prediction and the observation in the first and last 100 time points of the test period
 ```{r}
@@ -204,6 +244,7 @@ plotPred(obs = obs,
 ```
 
 Random predictive trajectories for 10 time points
+THORDIS: Forklare hvorfor vi gjør dette?
 ```{r}
 rPlotPred(obs = obs,
          t.period = c(40:49),
@@ -214,7 +255,7 @@ rPlotPred(obs = obs,
 ```
 
 Learn correlation from previous timepoints (last 100 time points in test period)
-
+THORDIS: Forklare hvorfor vi gjør dette?
 ```{r}
 rCorr(obs = obs,
       t.period = c(40:49),

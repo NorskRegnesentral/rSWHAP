@@ -53,6 +53,76 @@ qBoxCox = function(p, mean, sd, lambda) {
   return(q)
 }
 
+# Compute the Inverse Box Cox tranformation
+# @param obst Values to be detransformed
+# @param lambda The lambda used in the Box Cox transformation
+# @return The quantiles of the Box Cox distribution
+InvBoxCox = function(obst, lambda){
+  if(is.na(lambda)) {
+    obs = NA
+  } else {
+    if(lambda == 0) {
+      obs = exp(obst)
+    } else {
+      obs = (lambda*obst + 1)^(1/lambda)
+    }
+  }
+  return(obs)
+}
+
+
+# Compute the Inverse Box Cox tranformation
+# @param n Number of samples to simulate
+# @param mean Mean of truncated normal distribution
+# @param sd Standard deviation of truncated normal distribution
+# @param a Lower truncation limit
+# @param b Upper truncation limit
+# @param approxn n samples will be generated. If FALSE exactly n samples will be generated at a higher computational cost.
+# @return Samples from the truncated normal distribution
+rtnorm = function(n, mean, sd, a, b, approxn = TRUE) {
+  q = c(a,b)
+  p = pnorm(q, mean, sd)
+  m = 5 # If we want this functionality, we must calcultate this so that the P(to few samples) is sufficiently small, say 1e-6.
+
+
+  if(approxn) {
+    nt = round(n/(p[2] - p[1]))
+  } else {
+    nt = 5*nt
+  }
+
+  x = rnorm(nt, mean, sd)
+  x = x[x > a & x <b]
+
+  if(!approxn) {
+    x = x[1:n]
+  }
+  return(x)
+}
+
+# Generate samples from the predictive distribution
+# @param mean Mean of untruncated normal distribution
+# @param sd Standard deviation of untruncated normal distribution
+# @param lambda paramter in Box Cox transformation
+# @param approxn If TRUE approximately n samples will be generated. If FALSE exactly n samples will be generated at a higher computational cost.
+# @return Samples from the predictive distribution
+rpred = function(n, mean, sd, lambda, approxn = TRUE) {
+  if(lambda < -1e-6) {
+    a = -Inf
+    b = -1/lambda
+    xbc = rtnorm(n, mean, sd, a, b)
+  } else if(lambda > 1e-6) {
+    a = -1/lambda
+    b = Inf
+    xbc = rtnorm(n, mean, sd, a, b)
+  } else {
+    xbc = rnorm(n, mean, sd)
+  }
+  x = InvBoxCox(xbc, lambda)
+  return(x)
+}
+
+
 # Compute density of the Box Cox distribution
 # @param obs The probability
 # @param mean The mean of the distribution
@@ -89,12 +159,14 @@ dboxcox = function(obs, mean, sd, lambda, log = FALSE) {
 # @param mean The mean of the fitted distribution
 # @param sd The standard deviation of the fitted distribution
 # @param lambda The lambda used in the Box Cox transformation
+# @param print2screen Logical parameter to print results to screen
 # @return The mean absolute error of the Box Cox distribution
-maeEst = function(obs,mean, sd, lambda) {
+maeEst = function(obs,mean, sd, lambda, print2screen = TRUE) {
 
   median  <- qBoxCox(0.5, mean, sd, lambda)
   mae  <- mean(abs(obs - median))
-  cat("\n The mean absolute error is:",mae,"\n")
+
+  if(print2screen) cat("\n The mean absolute error is:",mae,"\n")
 
   return(mae)
 }
@@ -104,8 +176,14 @@ maeEst = function(obs,mean, sd, lambda) {
 # @param mean The mean of the fitted distribution
 # @param sd The standard deviation of the fitted distribution
 # @param lambda The lambda used in the Box Cox transformation
+# @param print2screen Logical parameter to print results to screen
 # @return The -log score. The lower value, the better.
-logsEst = function(obs,mean, sd, lambda,log = TRUE) {
+logsEst = function(obs,
+                   mean,
+                   sd,
+                   lambda,
+                   log = TRUE,
+                   print2screen = TRUE) {
 
   logsD = dboxcox(obs = obs,
                   mean = mean,
@@ -114,7 +192,8 @@ logsEst = function(obs,mean, sd, lambda,log = TRUE) {
                   log = log)
 
   logs = mean(logsD)
-  cat("\n The log score is:",logs,"\n")
+
+  if(print2screen) cat("\n The log score is:",logs,"\n")
 
   return(logs)
 }
@@ -153,8 +232,14 @@ ppredbc = function(obs, mean, sd, lambda) {
 # @param sd The standard deviation of the fitted distribution
 # @param lambda The lambda used in the Box Cox transformation
 # @param n.bins Number of bins used
+# @param print2screen Logical parameter to print results to screen
 # @return The reliability index (RIDX)
-ribxEst = function(obs, mean, sd, lambda, n.bins = 20) {
+ribxEst = function(obs,
+                   mean,
+                   sd,
+                   lambda,
+                   n.bins = 20,
+                   print2screen = TRUE) {
 
   U = ppredbc(obs = obs,
              mean = mean,
@@ -176,7 +261,7 @@ ribxEst = function(obs, mean, sd, lambda, n.bins = 20) {
     RI = NA
   }
 
-  cat("\n The reliability index is:",RI,"\n")
+  if(print2screen) cat("\n The reliability index is:",RI,"\n")
 
   return(RI)
 }
@@ -189,7 +274,7 @@ ribxEst = function(obs, mean, sd, lambda, n.bins = 20) {
 # @return The Continuous Ranked Probability Score (CRPS)
 crpsEst = function(obs, mean, sd, lambda) {
 
-  Rcpp::sourceCpp("RMSE_CRPS_MEAN.cpp")
+  #Rcpp::sourceCpp("RMSE_CRPS_MEAN.cpp")
 
   crpsEst = mean(CRPS(obs, mean, sd, lambda, n.bc.samp), na.rm = TRUE)
 }
@@ -197,14 +282,103 @@ crpsEst = function(obs, mean, sd, lambda) {
 # Compute the root mean squared error
 # @param obs Observations
 # @param mean The mean of the fitted distribution
+# @param sd The standard deviation of the fitted distribution
+# @param lambda The lambda for the Box-Cox distribution
+# @param Nsamples The number of samples to generate from the predictive distribution.
+# @param print2screen Logical parameter to turn on and off print to screen
 # @return The root mean squared error of the predictive distribution
-rmseEst = function(obs,mean) {
+rmseEst = function(obs,
+                   mean,
+                   sd,
+                   lambda,
+                   Nsamples = 10000,
+                   print2screen = TRUE){
 
-  rmse  <- sqrt(mean(abs(obs - mean)))
-  cat("\n The root mean squared error is:",rmse,"\n")
+  nobs = length(mean)
 
-  return(rmse)
+  # For every observation and prediction (temporal position) we must first estimate the expectation of the Box Cox distribution by simulation (lines 83 - 84). Next compute squared difference to observation. Som over position, finally take the quare root of the mean.
+  RMSE = 0
+  for(i in 1:nobs) {
+    x = rpred(Nsamples,
+              mean[i],
+              sd,
+              lambda,
+              approxn = FALSE)
+
+    Ex = mean(x)
+    RMSE = RMSE + (obs[i] - Ex)^2
+  }
+  RMSE = sqrt(RMSE/nobs)
+
+  if(print2screen) cat("\n The root mean squared error is:",RMSE,"\n")
+
+  return(RMSE)
 }
+
+# Summary function to calculate a table of performance measures
+# @param obs Observations
+# @param mean The mean of the fitted distribution
+# @param sd The standard deviation of the fitted distribution
+# @param lambda The lambda for the Box-Cox distribution
+# @param Nsamples The number of samples to generate from the predictive distribution.
+# @param print2screen Logical parameter to print results to screen
+# @return The root mean squared error of the predictive distribution
+perfMeasures = function(obs,
+                        mean,
+                        sd,
+                        lambda,
+                        Nsamples = 10000,
+                        print2screen = TRUE){
+
+  df = data.frame("Performance measure" = NA,"Value" = NA)
+
+  if(print2screen){
+    cat("\n =======================================================\n")
+    cat("\n Summary table of the performance measures\n")
+    cat(" -----------------------------------------\n")
+  }
+  df[1,1] = "MAE"
+  df[1,2] = maeEst(obs = obs,
+               mean = mean,
+               sd = sd,
+               lambda = lambda,
+               print2screen = FALSE)
+  if(print2screen) cat("\n The mean absolute error is:",df[1,2],"\n")
+
+
+  df[2,1] = "RMSE"
+  df[2,2] = rmseEst(obs = obs,
+                 mean = mean,
+                 sd = sd,
+                 lambda = lambda,
+                 Nsamples = 10000,
+                 print2screen = FALSE)
+  if(print2screen) cat(" The root mean squared error is:",df[2,2],"\n")
+
+  df[3,1] = "Logs"
+  df[3,2] = logsEst(obs = obs,
+                 mean = mean,
+                 sd = sd,
+                 lambda = lambda,
+                 log = TRUE,
+                 print2screen = FALSE)
+  if(print2screen) cat(" The log score is:",df[3,2],"\n")
+
+
+  df[4,1] = "RIBX"
+  df[4,2] = ribxEst(obs = obs,
+                 mean = mean,
+                 sd = sd,
+                 lambda = lambda,
+                 print2screen = FALSE)
+  if(print2screen) cat(" The reliability index is:",df[4,2],"\n")
+
+  if(print2screen) cat("\n =======================================================\n")
+
+
+  return(df)
+}
+
 
 # Calculates the continuous ranked probability score (CRPS)
 # @param obs Observations
@@ -794,7 +968,7 @@ getPreddistr = function(SWH = NA,
     ## Descale and detransform before computing different raknkings
     SWH.bc.pred = SWH.bc.standard.pred*SWH.bc.sd.training + SWH.bc.mean.training
     SWH.bc.pred.se = SWH.bc.standard.pred.se*SWH.bc.sd.training
-    SWH.pred = forecast::InvBoxCox(SWH.bc.pred, SWH.bc.lambda.training) #detransform
+    SWH.pred = InvBoxCox(SWH.bc.pred, SWH.bc.lambda.training) #detransform
 
     pred.mean[idx.test - length(training.test[[1]])] = SWH.bc.pred
     pred.sd = SWH.bc.pred.se
