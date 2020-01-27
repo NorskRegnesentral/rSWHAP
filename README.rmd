@@ -145,7 +145,6 @@ predObs = rpred(n = 1000,
                 sd = pred.sd, 
                 lambda = pred.lambda, 
                 approxn = FALSE)
-windows(width = 7, height = 5)
 hist(predObs,
      col = "gray",
      xlab = "The predictive distribution",
