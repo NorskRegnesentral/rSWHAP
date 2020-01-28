@@ -426,7 +426,7 @@ perfMeasures = function(obs,
                    sd = sd,
                    lambda = lambda,
                    print2screen = FALSE)
-  if(print2screen) cat("\n The mean absolute error is:",df[5,2],"\n")
+  if(print2screen) cat(" The continuous ranked probability score is:",df[5,2],"\n")
 
 
   if(print2screen) cat("\n =======================================================\n")
