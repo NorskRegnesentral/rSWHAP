@@ -436,17 +436,6 @@ perfMeasures = function(obs,
 }
 
 
-# Calculates the continuous ranked probability score (CRPS)
-# @param obs Observations
-# @param mean The mean of the fitted distribution
-# @return The root mean squared error of the predictive distribution
-crpsEst = function(obs,mean) {
-
-  crps  <- sqrt(mean(abs(obs - mean)))
-  cat("\n The Continuous Ranked Probability Score (CRPS) is:",crps,"\n")
-
-  return(crps)
-}
 
 # Performs Box-Cox transformation of the data. The transformation parameter (lambda) is chosen to minimize deviation from the normal distribution (minumum sum of squared skewness and squared kurtosis)
 # @param obs The observations to be transformed
