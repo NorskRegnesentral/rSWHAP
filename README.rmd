@@ -196,7 +196,7 @@ ribx = ribxEst(obs = obs,
 ```
 
 To calculate the Continuous Ranked Probability Score (CRPS) use:
-```{r eval = FALSE}
+```{r}
 crps = crpsEst(obs = obs,
                mean = pred.mean,
                sd = pred.sd,
