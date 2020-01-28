@@ -77,26 +77,16 @@ InvBoxCox = function(obst, lambda){
 # @param sd Standard deviation of truncated normal distribution
 # @param a Lower truncation limit
 # @param b Upper truncation limit
-# @param approxn n samples will be generated. If FALSE exactly n samples will be generated at a higher computational cost.
 # @return Samples from the truncated normal distribution
-rtnorm = function(n, mean, sd, a, b, approxn = TRUE) {
+rtnorm = function(n, mean, sd, a, b) {
   q = c(a,b)
   p = pnorm(q, mean, sd)
-  m = 5 # If we want this functionality, we must calcultate this so that the P(to few samples) is sufficiently small, say 1e-6.
 
-
-  if(approxn) {
-    nt = round(n/(p[2] - p[1]))
-  } else {
-    nt = 5*nt
-  }
+  nt = round(n/(p[2] - p[1]))
 
   x = rnorm(nt, mean, sd)
   x = x[x > a & x <b]
 
-  if(!approxn) {
-    x = x[1:n]
-  }
   return(x)
 }
 
@@ -104,9 +94,8 @@ rtnorm = function(n, mean, sd, a, b, approxn = TRUE) {
 # @param mean Mean of untruncated normal distribution
 # @param sd Standard deviation of untruncated normal distribution
 # @param lambda paramter in Box Cox transformation
-# @param approxn If TRUE approximately n samples will be generated. If FALSE exactly n samples will be generated at a higher computational cost.
 # @return Samples from the predictive distribution
-rpred = function(n, mean, sd, lambda, approxn = TRUE) {
+rpred = function(n, mean, sd, lambda) {
   if(lambda < -1e-6) {
     a = -Inf
     b = -1/lambda
@@ -271,12 +260,71 @@ ribxEst = function(obs,
 # @param mean The mean of the fitted distribution
 # @param sd The standard deviation of the fitted distribution
 # @param lambda The lambda used in the Box Cox transformation
+# @param print2screen Logical parameter to turn on and off print to screen
 # @return The Continuous Ranked Probability Score (CRPS)
-crpsEst = function(obs, mean, sd, lambda) {
+crpsEst = function(obs,
+                   mean,
+                   sd,
+                   lambda,
+                   Nsamples = 10000,
+                   print2screen = TRUE) {
 
-  #Rcpp::sourceCpp("RMSE_CRPS_MEAN.cpp")
+  nobs = length(mean)
+  crps = rep(NA,nobs)
 
-  crpsEst = mean(CRPS(obs, mean, sd, lambda, n.bc.samp), na.rm = TRUE)
+  for(i in 1:nobs) {
+    EXz = 0
+    EXXm = 0
+
+    # Generate samples from Box Cox distribution
+    if(lambda < -1e-6) {
+      a = -infty
+      b = -1/lambda
+      xbc = rtnorm(nsamples, mean[i], sd, a, b)
+    } else if(lambda > 1e-6) {
+      a = -1/lambda
+      b = infty
+      xbc = rtnorm(Nsamples, mean[i], sd, a, b)
+    } else {
+      xbc = rnorm(Nsamples, mean[i], sd)
+    }
+    x = InvBoxCox(xbc, lambda)
+
+    for(j in 1:Nsamples) {
+      EXz = EXz + abs(x[j] - obs[i])
+    }
+    EXz = EXz/Nsamples
+
+    # Generate samples from Box Cox distribution
+    if(lambda < -1e-6) {
+      a = -infty
+      b = -1/lambda
+      xbc = rtnorm(Nsamples, mean[i], sd, a, b)
+    } else if(lambda > 1e-6) {
+      a = -1/lambda
+      b = infty
+      xbc = rtnorm(Nsamples, mean[i], sd, a, b)
+    } else {
+      xbc = rnorm(Nsamples, mean[i], sd)
+    }
+    x = InvBoxCox(xbc, lambda)
+
+    nsamp = 0.0;
+    for(j in 0:(Nsamples/2-1)) {
+      EXXm = EXXm + abs(x[2*j+1] - x[2*j+2])
+      nsamp = nsamp + 1.0
+    }
+    EXXm = EXXm/nsamp
+
+    crps[i] = EXz - 0.5*EXXm;
+  }
+
+  crps = mean(crps)
+
+  if(print2screen) cat("\n The continuous ranked probability score is:",crps,"\n")
+
+  return(crps);
+
 }
 
 # Compute the root mean squared error
@@ -302,8 +350,7 @@ rmseEst = function(obs,
     x = rpred(Nsamples,
               mean[i],
               sd,
-              lambda,
-              approxn = FALSE)
+              lambda)
 
     Ex = mean(x)
     RMSE = RMSE + (obs[i] - Ex)^2
@@ -372,6 +419,15 @@ perfMeasures = function(obs,
                  lambda = lambda,
                  print2screen = FALSE)
   if(print2screen) cat(" The reliability index is:",df[4,2],"\n")
+
+  df[5,1] = "CRPS"
+  df[5,2] = crpsEst(obs = obs,
+                   mean = mean,
+                   sd = sd,
+                   lambda = lambda,
+                   print2screen = FALSE)
+  if(print2screen) cat("\n The mean absolute error is:",df[5,2],"\n")
+
 
   if(print2screen) cat("\n =======================================================\n")
 
