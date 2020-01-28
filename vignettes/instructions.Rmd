@@ -192,13 +192,14 @@ ribx = ribxEst(obs = obs,
                lambda = pred.lambda)
 ```
 
-<!-- To calculate the Continuous Ranked Probability Score (CRPS) use: -->
-<!-- ```{r eval = FALSE} -->
-<!-- crps = crpsEst(obs = obs,  -->
-<!--                mean = pred.mean, -->
-<!--                sd = pred.sd, -->
-<!--                lambda = pred.lambda) -->
-<!-- ``` -->
+To calculate the Continuous Ranked Probability Score (CRPS) use:
+```{r eval = FALSE}
+crps = crpsEst(obs = obs,
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000)
+```
 
 You can get a summary table containing all performance measures implemented:
 ```{r}
