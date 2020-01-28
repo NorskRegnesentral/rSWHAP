@@ -246,8 +246,7 @@ There is a function to simulate from the predictive distribution.
 predObs = rpred(n = 1000, 
                 mean = pred.mean, 
                 sd = pred.sd, 
-                lambda = pred.lambda, 
-                approxn = FALSE)
+                lambda = pred.lambda)
 hist(predObs,
      col = "gray",
      xlab = "The predictive distribution",
@@ -298,7 +297,7 @@ rmse = rmseEst(obs = obs,
 ```
 
     ## 
-    ##  The root mean squared error is: 0.3619098
+    ##  The root mean squared error is: 0.3620311
 
 To calculate the log-score type:
 
@@ -325,19 +324,15 @@ ribx = ribxEst(obs = obs,
     ## 
     ##  The reliability index is: 0.8150685
 
-<!-- To calculate the Continuous Ranked Probability Score (CRPS) use: -->
+To calculate the Continuous Ranked Probability Score (CRPS) use:
 
-<!-- ```{r eval = FALSE} -->
-
-<!-- crps = crpsEst(obs = obs,  -->
-
-<!--                mean = pred.mean, -->
-
-<!--                sd = pred.sd, -->
-
-<!--                lambda = pred.lambda) -->
-
-<!-- ``` -->
+``` r
+crps = crpsEst(obs = obs,
+               mean = pred.mean,
+               sd = pred.sd,
+               lambda = pred.lambda,
+               Nsamples = 10000)
+```
 
 You can get a summary table containing all performance measures
 implemented:
@@ -357,9 +352,11 @@ perfM = perfMeasures(obs = obs,
     ##  -----------------------------------------
     ## 
     ##  The mean absolute error is: 0.2328819 
-    ##  The root mean squared error is: 0.3620938 
+    ##  The root mean squared error is: 0.3618776 
     ##  The log score is: -0.08712402 
     ##  The reliability index is: 0.8150685 
+    ## 
+    ##  The mean absolute error is: 0.1701898 
     ## 
     ##  =======================================================
 
@@ -379,9 +376,10 @@ perfM
 
     ##   Performance.measure       Value
     ## 1                 MAE  0.23288189
-    ## 2                RMSE  0.36194286
+    ## 2                RMSE  0.36232184
     ## 3                Logs -0.08712402
     ## 4                RIBX  0.81506849
+    ## 5                CRPS  0.17013894
 
 Plot the prediction and the observation in the first and last 100 time
 points of the test period
@@ -394,7 +392,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 ``` r
 plotPred(obs = obs,
@@ -404,7 +402,7 @@ plotPred(obs = obs,
          lambda = pred.lambda)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
 
 Random predictive trajectories for 10 time points THORDIS: Forklare
 hvorfor vi gjør dette?
@@ -418,7 +416,7 @@ rPlotPred(obs = obs,
          n.random = 10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 Learn correlation from previous timepoints (last 100 time points in test
 period) THORDIS: Forklare hvorfor vi gjør dette?
@@ -434,4 +432,4 @@ rCorr(obs = obs,
       SWHobs = SWH[4,4,]) 
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
