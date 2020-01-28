@@ -297,7 +297,7 @@ rmse = rmseEst(obs = obs,
 ```
 
     ## 
-    ##  The root mean squared error is: 0.3620311
+    ##  The root mean squared error is: 0.3621279
 
 To calculate the log-score type:
 
@@ -352,11 +352,11 @@ perfM = perfMeasures(obs = obs,
     ##  -----------------------------------------
     ## 
     ##  The mean absolute error is: 0.2328819 
-    ##  The root mean squared error is: 0.3618776 
+    ##  The root mean squared error is: 0.3621918 
     ##  The log score is: -0.08712402 
     ##  The reliability index is: 0.8150685 
     ## 
-    ##  The mean absolute error is: 0.1701898 
+    ##  The mean absolute error is: 0.1701386 
     ## 
     ##  =======================================================
 
@@ -376,10 +376,10 @@ perfM
 
     ##   Performance.measure       Value
     ## 1                 MAE  0.23288189
-    ## 2                RMSE  0.36232184
+    ## 2                RMSE  0.36210457
     ## 3                Logs -0.08712402
     ## 4                RIBX  0.81506849
-    ## 5                CRPS  0.17013894
+    ## 5                CRPS  0.17009069
 
 Plot the prediction and the observation in the first and last 100 time
 points of the test period
