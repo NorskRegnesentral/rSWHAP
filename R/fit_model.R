@@ -278,11 +278,11 @@ crpsEst = function(obs,
     EXXm = 0
 
     # Generate samples from Box Cox distribution
-    x = rpred(Nsamples, mean[i], sd[i], lambda[i])
+    x = rpred(Nsamples, mean[i], sd, lambda)
     EXz = mean(abs(x - obs))
 
     # Generate samples from Box Cox distribution
-    x = rpred(Nsamples, mean[i], sd[i], lambda[i])
+    x = rpred(Nsamples, mean[i], sd, lambda)
     nsamp = 0.0;
     for(j in 0:(Nsamples/2-1)) {
       EXXm = EXXm + abs(x[2*j+1] - x[2*j+2])
