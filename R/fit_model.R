@@ -1,8 +1,9 @@
-# Calculates the Fourier terms for modeling seasonality
-# @param x Coefficients
-# @param K Number of Fourier terms (default = 2)
-# @param m Number of observations per period (default = 365.25*4)
-# @return A matrix with 2xK Fourier terms
+#' Calculates the Fourier terms for modeling seasonality
+#' @param x Coefficients
+#' @param K Number of Fourier terms (default = 2)
+#' @param m Number of observations per period (default = 365.25*4)
+#' @export
+#' @return A matrix with 2xK Fourier terms
 fourier = function(x, K = 2, m = 365.25*4) {
   n = length(x)
   idx = 1:n
@@ -20,11 +21,12 @@ fourier = function(x, K = 2, m = 365.25*4) {
 }
 
 
-# Splitting the data in a traing set and a test set
-# @param years A vector containg the year of each observation
-# @param trainingPeriod A vector defining for which time period the model is trained on (default = 2006:2014)
-# @param testPeriod Defining for which time period the model is tested on (default = 2015)
-# @return A list containing the training set and the test set
+#' Splitting the data in a traing set and a test set
+#' @param years A vector containg the year of each observation
+#' @param trainingPeriod A vector defining for which time period the model is trained on (default = 2006:2014)
+#' @param testPeriod Defining for which time period the model is tested on (default = 2015)
+#' @export
+#' @return A list containing the training set and the test set
 split.data = function(years, trainingPeriod = 2006:2014, testPeriod = 2015) {
 
   training.test = list()
@@ -34,12 +36,13 @@ split.data = function(years, trainingPeriod = 2006:2014, testPeriod = 2015) {
   return(training.test)
 }
 
-# Compute quantiles of the Box Cox distribution
-# @param obs The probability
-# @param mean The mean of the distribution
-# @param sd The standard deviation of the distribution
-# @param lambda The lambda used in the Box Cox transformation
-# @return The quantiles of the Box Cox distribution
+#' Compute quantiles of the Box Cox distribution
+#' @param obs The probability
+#' @param mean The mean of the distribution
+#' @param sd The standard deviation of the distribution
+#' @param lambda The lambda used in the Box Cox transformation
+#' @export
+#' @return The quantiles of the Box Cox distribution
 qBoxCox = function(p, mean, sd, lambda) {
   if(round(lambda,2) < 0) {
     q = (lambda*(sd*qnorm(p)+mean)+1)^(1/lambda)
@@ -53,10 +56,11 @@ qBoxCox = function(p, mean, sd, lambda) {
   return(q)
 }
 
-# Compute the Inverse Box Cox tranformation
-# @param obst Values to be detransformed
-# @param lambda The lambda used in the Box Cox transformation
-# @return The quantiles of the Box Cox distribution
+#' Compute the Inverse Box Cox tranformation
+#' @param obst Values to be detransformed
+#' @param lambda The lambda used in the Box Cox transformation
+#' @export
+#' @return The quantiles of the Box Cox distribution
 InvBoxCox = function(obst, lambda){
   if(is.na(lambda)) {
     obs = NA
@@ -71,13 +75,14 @@ InvBoxCox = function(obst, lambda){
 }
 
 
-# Compute the Inverse Box Cox tranformation
-# @param n Number of samples to simulate
-# @param mean Mean of truncated normal distribution
-# @param sd Standard deviation of truncated normal distribution
-# @param a Lower truncation limit
-# @param b Upper truncation limit
-# @return Samples from the truncated normal distribution
+#' Compute the Inverse Box Cox tranformation
+#' @param n Number of samples to simulate
+#' @param mean Mean of truncated normal distribution
+#' @param sd Standard deviation of truncated normal distribution
+#' @param a Lower truncation limit
+#' @param b Upper truncation limit
+#' @export
+#' @return Samples from the truncated normal distribution
 rtnorm = function(n, mean, sd, a, b) {
   q = c(a,b)
   p = pnorm(q, mean, sd)
@@ -90,11 +95,12 @@ rtnorm = function(n, mean, sd, a, b) {
   return(x)
 }
 
-# Generate samples from the predictive distribution
-# @param mean Mean of untruncated normal distribution
-# @param sd Standard deviation of untruncated normal distribution
-# @param lambda paramter in Box Cox transformation
-# @return Samples from the predictive distribution
+#' Generate samples from the predictive distribution
+#' @param mean Mean of untruncated normal distribution
+#' @param sd Standard deviation of untruncated normal distribution
+#' @param lambda paramter in Box Cox transformation
+#' @export
+#' @return Samples from the predictive distribution
 rpred = function(n, mean, sd, lambda) {
   if(lambda < -1e-6) {
     a = -Inf
@@ -112,13 +118,14 @@ rpred = function(n, mean, sd, lambda) {
 }
 
 
-# Compute density of the Box Cox distribution
-# @param obs The probability
-# @param mean The mean of the distribution
-# @param sd The standard deviation of the distribution
-# @param lambda The lambda used in the Box Cox transformation
-# @param log Logical value to switch between log or not
-# @return The density values of the Box Cox distribution
+#' Compute density of the Box Cox distribution
+#' @param obs The probability
+#' @param mean The mean of the distribution
+#' @param sd The standard deviation of the distribution
+#' @param lambda The lambda used in the Box Cox transformation
+#' @param log Logical value to switch between log or not
+#' @export
+#' @return The density values of the Box Cox distribution
 dboxcox = function(obs, mean, sd, lambda, log = FALSE) {
   if(log == FALSE) {
     val = rep(0, length(obs))
@@ -143,13 +150,14 @@ dboxcox = function(obs, mean, sd, lambda, log = FALSE) {
 }
 
 
-# Compute the mean absolute error
-# @param obs Observations
-# @param mean The mean of the fitted distribution
-# @param sd The standard deviation of the fitted distribution
-# @param lambda The lambda used in the Box Cox transformation
-# @param print2screen Logical parameter to print results to screen
-# @return The mean absolute error of the Box Cox distribution
+#' Compute the mean absolute error
+#' @param obs Observations
+#' @param mean The mean of the fitted distribution
+#' @param sd The standard deviation of the fitted distribution
+#' @param lambda The lambda used in the Box Cox transformation
+#' @param print2screen Logical parameter to print results to screen
+#' @export
+#' @return The mean absolute error of the Box Cox distribution
 maeEst = function(obs,mean, sd, lambda, print2screen = TRUE) {
 
   median  <- qBoxCox(0.5, mean, sd, lambda)
@@ -160,13 +168,14 @@ maeEst = function(obs,mean, sd, lambda, print2screen = TRUE) {
   return(mae)
 }
 
-# Compute the log score
-# @param obs Observations
-# @param mean The mean of the fitted distribution
-# @param sd The standard deviation of the fitted distribution
-# @param lambda The lambda used in the Box Cox transformation
-# @param print2screen Logical parameter to print results to screen
-# @return The -log score. The lower value, the better.
+#' Compute the log score
+#' @param obs Observations
+#' @param mean The mean of the fitted distribution
+#' @param sd The standard deviation of the fitted distribution
+#' @param lambda The lambda used in the Box Cox transformation
+#' @param print2screen Logical parameter to print results to screen
+#' @export
+#' @return The -log score. The lower value, the better.
 logsEst = function(obs,
                    mean,
                    sd,
@@ -187,12 +196,13 @@ logsEst = function(obs,
   return(logs)
 }
 
-# Calculates the PIT values
-# @param obs.bc Box Cox transformed observations
-# @param mean The mean of the fitted distribution
-# @param sd The standard deviation of the fitted distribution
-# @param lambda The lambda used in the Box Cox transformation
-# @return The PIT values normalized to the zero one intervall
+#' Calculates the PIT values
+#' @param obs.bc Box Cox transformed observations
+#' @param mean The mean of the fitted distribution
+#' @param sd The standard deviation of the fitted distribution
+#' @param lambda The lambda used in the Box Cox transformation
+#' @export
+#' @return The PIT values normalized to the zero one intervall
 ppredbc = function(obs, mean, sd, lambda) {
   obs.bc  <- BoxCoxLambdaKnown(obs, lambda)
 
@@ -215,14 +225,15 @@ ppredbc = function(obs, mean, sd, lambda) {
 }
 
 
-# Computes the reliability index
-# @param obs.bc Box Cox transformed observations
-# @param mean The mean of the fitted distribution
-# @param sd The standard deviation of the fitted distribution
-# @param lambda The lambda used in the Box Cox transformation
-# @param n.bins Number of bins used
-# @param print2screen Logical parameter to print results to screen
-# @return The reliability index (RIDX)
+#' Computes the reliability index
+#' @param obs.bc Box Cox transformed observations
+#' @param mean The mean of the fitted distribution
+#' @param sd The standard deviation of the fitted distribution
+#' @param lambda The lambda used in the Box Cox transformation
+#' @param n.bins Number of bins used
+#' @param print2screen Logical parameter to print results to screen
+#' @export
+#' @return The reliability index (RIDX)
 ribxEst = function(obs,
                    mean,
                    sd,
@@ -255,13 +266,14 @@ ribxEst = function(obs,
   return(RI)
 }
 
-# Computes the Continuous Ranked Probability Score (CRPS)
-# @param obs.bc Box Cox transformed observations
-# @param mean The mean of the fitted distribution
-# @param sd The standard deviation of the fitted distribution
-# @param lambda The lambda used in the Box Cox transformation
-# @param print2screen Logical parameter to turn on and off print to screen
-# @return The Continuous Ranked Probability Score (CRPS)
+#' Computes the Continuous Ranked Probability Score (CRPS)
+#' @param obs.bc Box Cox transformed observations
+#' @param mean The mean of the fitted distribution
+#' @param sd The standard deviation of the fitted distribution
+#' @param lambda The lambda used in the Box Cox transformation
+#' @param print2screen Logical parameter to turn on and off print to screen
+#' @export
+#' @return The Continuous Ranked Probability Score (CRPS)
 crpsEst = function(obs,
                    mean,
                    sd,
@@ -301,14 +313,15 @@ crpsEst = function(obs,
 
 }
 
-# Compute the root mean squared error
-# @param obs Observations
-# @param mean The mean of the fitted distribution
-# @param sd The standard deviation of the fitted distribution
-# @param lambda The lambda for the Box-Cox distribution
-# @param Nsamples The number of samples to generate from the predictive distribution.
-# @param print2screen Logical parameter to turn on and off print to screen
-# @return The root mean squared error of the predictive distribution
+#' Compute the root mean squared error
+#' @param obs Observations
+#' @param mean The mean of the fitted distribution
+#' @param sd The standard deviation of the fitted distribution
+#' @param lambda The lambda for the Box-Cox distribution
+#' @param Nsamples The number of samples to generate from the predictive distribution.
+#' @param print2screen Logical parameter to turn on and off print to screen
+#' @export
+#' @return The root mean squared error of the predictive distribution
 rmseEst = function(obs,
                    mean,
                    sd,
@@ -336,14 +349,15 @@ rmseEst = function(obs,
   return(RMSE)
 }
 
-# Summary function to calculate a table of performance measures
-# @param obs Observations
-# @param mean The mean of the fitted distribution
-# @param sd The standard deviation of the fitted distribution
-# @param lambda The lambda for the Box-Cox distribution
-# @param Nsamples The number of samples to generate from the predictive distribution.
-# @param print2screen Logical parameter to print results to screen
-# @return The root mean squared error of the predictive distribution
+#' Summary function to calculate a table of performance measures
+#' @param obs Observations
+#' @param mean The mean of the fitted distribution
+#' @param sd The standard deviation of the fitted distribution
+#' @param lambda The lambda for the Box-Cox distribution
+#' @param Nsamples The number of samples to generate from the predictive distribution.
+#' @param print2screen Logical parameter to print results to screen
+#' @export
+#' @return The root mean squared error of the predictive distribution
 perfMeasures = function(obs,
                         mean,
                         sd,
@@ -411,10 +425,11 @@ perfMeasures = function(obs,
 
 
 
-# Performs Box-Cox transformation of the data. The transformation parameter (lambda) is chosen to minimize deviation from the normal distribution (minumum sum of squared skewness and squared kurtosis)
-# @param obs The observations to be transformed
-# @return The observations transformed
-# @return The estimated lambda
+#' Performs Box-Cox transformation of the data. The transformation parameter (lambda) is chosen to minimize deviation from the normal distribution (minumum sum of squared skewness and squared kurtosis)
+#' @param obs The observations to be transformed
+#' @return The observations transformed
+#' @return The estimated lambda
+#' @export
 BoxCoxLambda = function(obs) {
   lambda = seq(0.0, 1.0, 0.1)
   obs.trans = matrix(nrow = length(lambda), ncol = length(obs))
@@ -431,14 +446,15 @@ BoxCoxLambda = function(obs) {
   return(list(data=obs.trans[which.min(normdev),],lambda = lambda[which.min(normdev)]))
 }
 
-# Plot the predictive distribution
-# @param obs The observations to be transformed
-# @param t.period The time period for plotting
-# @param mean The mean value of the distribution
-# @param sd The sd value of the distribution
-# @param lambda The estimated lambda of the distribution
-# @param graphDev Logical variable to create a OS specific graphic device
-# @return A figure showing the predictive distribution
+#' Plot the predictive distribution
+#' @param obs The observations to be transformed
+#' @param t.period The time period for plotting
+#' @param mean The mean value of the distribution
+#' @param sd The sd value of the distribution
+#' @param lambda The estimated lambda of the distribution
+#' @param graphDev Logical variable to create a OS specific graphic device
+#' @return A figure showing the predictive distribution
+#' @export
 plotPred = function(obs,t.period, mean, sd,lambda, graphD=FALSE) {
   upper  <- qBoxCox(0.95, mean = mean, sd = sd, lambda = lambda)
   lower  <- qBoxCox(0.05, mean = mean, sd = sd, lambda = lambda)
@@ -464,15 +480,16 @@ plotPred = function(obs,t.period, mean, sd,lambda, graphD=FALSE) {
 }
 
 
-# Plot random predictive trajectories for a selection of time points
-# @param obs The observations to be transformed
-# @param t.period The time period for plotting
-# @param mean The mean value of the distribution
-# @param sd The sd value of the distribution
-# @param lambda The estimated lambda of the distribution
-# @param n.random The number of random predictive trajectories
-# @param graphDev Logical variable to create a OS specific graphic device
-# @return A figure showing the random predictive trajectories
+#' Plot random predictive trajectories for a selection of time points
+#' @param obs The observations to be transformed
+#' @param t.period The time period for plotting
+#' @param mean The mean value of the distribution
+#' @param sd The sd value of the distribution
+#' @param lambda The estimated lambda of the distribution
+#' @param n.random The number of random predictive trajectories
+#' @param graphDev Logical variable to create a OS specific graphic device
+#' @return A figure showing the random predictive trajectories
+#' @export
 rPlotPred = function(obs,
                      t.period,
                      mean,
@@ -495,17 +512,18 @@ rPlotPred = function(obs,
 
 }
 
-# Plot random correlation for a selection of time points
-# @param obs The observations to be transformed
-# @param t.period The time period for plotting
-# @param mean The mean value of the distribution
-# @param sd The sd value of the distribution
-# @param lambda The estimated lambda of the distribution
-# @param n.random The number of random predictive trajectories
-# @param training.test The training and the test period
-# @param SWHobs SWH observations for a particular location in the test period
-# @param graphDev Logical variable to create a OS specific graphic device
-# @return A figure showing the random correlations
+#' Plot random correlation for a selection of time points
+#' @param obs The observations to be transformed
+#' @param t.period The time period for plotting
+#' @param mean The mean value of the distribution
+#' @param sd The sd value of the distribution
+#' @param lambda The estimated lambda of the distribution
+#' @param n.random The number of random predictive trajectories
+#' @param training.test The training and the test period
+#' @param SWHobs SWH observations for a particular location in the test period
+#' @param graphDev Logical variable to create a OS specific graphic device
+#' @return A figure showing the random correlations
+#' @export
 rCorr = function(obs,
                  t.period,
                  mean,
@@ -544,10 +562,11 @@ rCorr = function(obs,
   lines(t.ind, obs[t.ind], col="black", lwd=2)
 }
 
-# Prephare graphical device for a given OS
-# @param width Width of the graphical window
-# @param height Height of the grapchical window
-# @return The an OS dependent graphical window
+#' Prephare graphical device for a given OS
+#' @param width Width of the graphical window
+#' @param height Height of the grapchical window
+#' @return The an OS dependent graphical window
+#' @export
 graphDev = function(width = 7,height = 5) {
 
   system = Sys.info()
@@ -564,14 +583,15 @@ graphDev = function(width = 7,height = 5) {
   }
 }
 
-# Compute PIT values of the Box Cox distribution
-# @param obs The observations to be transformed
-# @param mean The mean of the predictive distribution
-# @param sd The standard deviation of the predictive distribution
-# @param lambda The estimated Box Cox lambda parameter used in the transformation of the predictive distribution
-# @param plothist Set to TRUE if plotting the histogram of the PIT values
-# @param graphDev Logical variable to create a OS specific graphic device
-# @return The PIT values
+#' Compute PIT values of the Box Cox distribution
+#' @param obs The observations to be transformed
+#' @param mean The mean of the predictive distribution
+#' @param sd The standard deviation of the predictive distribution
+#' @param lambda The estimated Box Cox lambda parameter used in the transformation of the predictive distribution
+#' @param plothist Set to TRUE if plotting the histogram of the PIT values
+#' @param graphDev Logical variable to create a OS specific graphic device
+#' @return The PIT values
+#' @export
 pBoxCox = function(x, mean, sd, lambda,plothist = TRUE,graphD = FALSE) {
   g.x  <- BoxCoxLambdaKnown(x, lambda)
   if(round(lambda,2) < 0) {
@@ -588,10 +608,11 @@ pBoxCox = function(x, mean, sd, lambda,plothist = TRUE,graphD = FALSE) {
   return(p)
 }
 
-# Performs Box-Cox transformation with a known lambda parameter
-# @param obs The observations to be transformed
-# @param lambda The lambda parameter to be used in the transformation
-# @return The observations transformed
+#' Performs Box-Cox transformation with a known lambda parameter
+#' @param obs The observations to be transformed
+#' @param lambda The lambda parameter to be used in the transformation
+#' @return The observations transformed
+#' @export
 BoxCoxLambdaKnown = function(obs, lambda) {
   if(round(lambda,3) == 0) {
     obs = log(obs)
@@ -601,11 +622,12 @@ BoxCoxLambdaKnown = function(obs, lambda) {
   return(obs)
 }
 
-# Calculates the AR lags
-# @param n.training Size of training data
-# @param n.test Size of training data
-# @param maxlag Order of AR process
-# @return AR terms for various lags used in model fitting
+#' Calculates the AR lags
+#' @param n.training Size of training data
+#' @param n.test Size of training data
+#' @param maxlag Order of AR process
+#' @return AR terms for various lags used in model fitting
+#' @export
 makeARterms = function(SWH.bc.standard.training,
                        SWH.bc.fourier.training,
                        SWH.bc.standard.test,
@@ -661,22 +683,23 @@ makeARterms = function(SWH.bc.standard.training,
 
 
 
-# Training the model and generating the predictive distributions
-# @param SWH The SWH data
-# @param SLP The SLP data
-# @param SLP.grad The SLP gradient data
-# @param latCell Define the latitude cell of interest (default = 4)
-# @param longCell Define the longitude cell of interest (default = 4)
-# @param training.test The training and the test data
-# @param neig Define the number of spatial neighbours (default = 2)
-# @param na.thresh Define how many missing values is "good enough" (default = 500)
-# @param latSWH A vector containing the SWH latitudes
-# @param lonSWH A vector containing the SWH longitudes
-# @param latSLP A vector containing the SLP latitudes
-# @param lonSLP A vector containing the SLO longitudes
-# @param intercept.fourier Seasonal Fourier coefficients
-# @param maxlag Define the maximum order of AR processes to be constructed
-# @return A list of predictive means, predictive spread and lambda for Box-Cox transformation
+#' Training the model and generating the predictive distributions
+#' @param SWH The SWH data
+#' @param SLP The SLP data
+#' @param SLP.grad The SLP gradient data
+#' @param latCell Define the latitude cell of interest (default = 4)
+#' @param longCell Define the longitude cell of interest (default = 4)
+#' @param training.test The training and the test data
+#' @param neig Define the number of spatial neighbours (default = 2)
+#' @param na.thresh Define how many missing values is "good enough" (default = 500)
+#' @param latSWH A vector containing the SWH latitudes
+#' @param lonSWH A vector containing the SWH longitudes
+#' @param latSLP A vector containing the SLP latitudes
+#' @param lonSLP A vector containing the SLO longitudes
+#' @param intercept.fourier Seasonal Fourier coefficients
+#' @param maxlag Define the maximum order of AR processes to be constructed
+#' @return A list of predictive means, predictive spread and lambda for Box-Cox transformation
+#' @export
 getPreddistr = function(SWH = NA,
                      SLP = NA,
                      SLP.grad = NA,

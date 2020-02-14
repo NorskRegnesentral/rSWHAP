@@ -23,5 +23,7 @@ Imports:
      Rcpp
 Suggests:
      knitr,
+     roxygen2,
      rmarkdown
 VignetteBuilder: knitr
+RoxygenNote: 7.0.0
